@@ -12,17 +12,22 @@ export default function ModernMinimalist() {
 
         .hero {
           display: flex;
-          gap: 24px;
-          padding: 24px;
+          gap: 32px;
+          padding: 40px 80px;
           background: #f4efe9;
-          min-height: 100vh;
+          min-height: unset;
+          height: 650px;
+          width: 100%;
+          max-width: 100%;
+          align-items: stretch;
         }
 
         .hero-left {
           position: relative;
-          flex: 2;
-          border-radius: 28px;
+          flex: 1.8;
+          border-radius: 32px;
           overflow: hidden;
+          min-width: 0;
         }
 
         .hero-left img {
@@ -113,7 +118,8 @@ export default function ModernMinimalist() {
           display: flex;
           flex-direction: column;
           justify-content: flex-end;
-          color: #fff;
+          color: #3b2a2a;
+          position: absolute;
         }
 
         .tag.dark {
@@ -145,6 +151,42 @@ export default function ModernMinimalist() {
             flex-direction: column;
           }
         }
+.corner-cut{
+  position: absolute;
+  right: 0;
+  bottom: 0;
+
+  width: 90px;
+  height: 90px;
+
+  background: #e9e1d6;       /* hero ka bg color */
+  border-top-left-radius: 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 14px;
+  z-index: 5;
+}
+
+.arrow{
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: none;
+
+  background: #000;
+  color: #fff;
+
+  font-size: 20px;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
       `}</style>
 
       <section className="hero">
@@ -168,14 +210,18 @@ export default function ModernMinimalist() {
             <h2>Into a gallery of elegance</h2>
           </div>
 
-          <div className="image-card">
-            <img src="/chair.jpg" alt="Furniture" />
-            <div className="overlay">
-              <span className="tag dark">Best Furniture</span>
-              <p>Indulge in the artistry of everyday living</p>
-              <button className="arrow">↗</button>
-            </div>
-          </div>
+<div className="image-card">
+  <img src="/chair.jpg" alt="Furniture" />
+
+  <div className="overlay">
+    <span className="tag dark">Best Furniture</span>
+    <p>Indulge in the artistry of everyday living</p>
+  </div>
+
+  <div className="corner-cut">
+    <button className="arrow">↗</button>
+  </div>
+</div>
         </div>
       </section>
     </>

@@ -113,37 +113,37 @@ export default function RoomOptions() {
 
           <div className="card mondrian">
             <img src="https://images.unsplash.com/photo-1505691938895-1758d7feb511" />
-            <div className="label">Mondrian</div>
+            <div className="label">BEDROOM</div>
             <div className="arrow">↗</div>
           </div>
 
           <div className="card nirnia-center">
             <img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6" />
-            <div className="label">Nirnia</div>
+            <div className="label">Living room</div>
             <div className="arrow">↗</div>
           </div>
 
           <div className="card artex">
             <img src="https://images.unsplash.com/photo-1600566752355-35792bedcfea" />
-            <div className="label">Artex</div>
+            <div className="label">KITCHEN</div>
             <div className="arrow">↗</div>
           </div>
 
           <div className="card brera">
             <img src="https://images.unsplash.com/photo-1556911220-e15b29be8c8f" />
-            <div className="label">Brera</div>
+            <div className="label">BATHROOM</div>
             <div className="arrow">↗</div>
           </div>
 
           <div className="card alea">
             <img src="https://images.unsplash.com/photo-1616594039964-ae9021a400a0" />
-            <div className="label">Alea Pro</div>
+            <div className="label">GARDEN</div>
             <div className="arrow">↗</div>
           </div>
 
           <div className="card nirnia-right">
             <img src="https://images.unsplash.com/photo-1615873968403-89e068629265" />
-            <div className="label">Nirnia</div>
+            <div className="label">Dining Room</div>
             <div className="arrow">↗</div>
           </div>
 

@@ -28,6 +28,7 @@ export default function AIWorkflow() {
           opacity: 0;
           transform: translateY(60px);
           transition: all 0.9s ease;
+          margin-top: 70px;
         }
 
         .ai-section.show {

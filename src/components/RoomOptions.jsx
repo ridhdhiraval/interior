@@ -12,6 +12,7 @@ export default function RoomOptions() {
           padding:60px 20px;
           display:flex;
           justify-content:center;
+          margin-top: 70px;
         }
 
         /* EXACT COLLAGE GRID */

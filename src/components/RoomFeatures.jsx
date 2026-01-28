@@ -18,6 +18,7 @@ export default function RoomFeatures() {
           background: #f8f8f8;
           font-family: "Segoe UI", sans-serif;
           scroll-behavior: smooth;
+          margin-top: 70px;
         }
 
         /* Section Title */

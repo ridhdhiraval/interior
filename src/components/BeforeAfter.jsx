@@ -1,7 +1,9 @@
 import { useRef, useState } from "react"
+import { useNavigate } from "react-router-dom"
 
 export default function BeforeAfterHero() {
   const ref = useRef(null)
+  const navigate = useNavigate()
   const [pos, setPos] = useState(60)
   const [drag, setDrag] = useState(false)
   
@@ -58,6 +60,7 @@ export default function BeforeAfterHero() {
           position: relative;
           width: 100%;
           height: 100vh;
+          margin-top: 70px;
         }
 
         .hero-bg {
@@ -247,8 +250,8 @@ export default function BeforeAfterHero() {
               or fresh inspiration with AI.
             </p>
             <div className="hero-actions">
-              <button className="hero-btn primary">Get Started</button>
-              <button className="hero-btn ghost">Learn how it works →</button>
+              <button className="hero-btn primary" onClick={() => navigate('/virtualai')}>AI Design</button>
+              <button className="hero-btn ghost" onClick={() => navigate('/manual-design')}>Manual Design →</button>
             </div>
           </div>
 

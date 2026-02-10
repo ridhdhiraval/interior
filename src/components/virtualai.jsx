@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-export default function BeforeAfterHero() {
+export default function VirtualAI() {
   const [room, setRoom] = useState("Living Room");
   const [scrollY, setScrollY] = useState(0);
   const [changeText, setChangeText] = useState("");

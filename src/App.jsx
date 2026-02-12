@@ -7,7 +7,11 @@ import WhatIsSection from "./components/WhatIsSection"
 import RoomOptions from "./components/RoomOptions"
 import RoomFeatures from "./components/RoomFeatures"
 import ManualDesign from "./components/ManualDesign"
-
+import Footer from "./components/Footer"
+import Pricing from "./components/Pricing"
+import ContactUs from "./components/ContactUs"
+import About from "./components/About"
+import SignIn from "./components/SignIn"
 
 
 
@@ -24,10 +28,15 @@ export default function App() {
             <WhatIsSection />
             <RoomOptions />
             <RoomFeatures/>
+            <Footer/>
           </>
         } />
         <Route path="/virtualai" element={<VirtualAI />} />
         <Route path="/manual-design" element={<ManualDesign />} />
+        <Route path="/pricing" element={<Pricing />} />
+        <Route path="/contact" element={<ContactUs />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/signin" element={<SignIn />} />
       </Routes>
     </>
   )

@@ -1,8 +1,7 @@
-import React, { useRef, useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Grid, Text, Edges, MapControls } from "@react-three/drei";
+import { Text, Edges, MapControls } from "@react-three/drei";
 import { usePlanner } from "../planner/PlannerContext";
-import * as THREE from 'three';
 
 // --- Blueprint Wall Component ---
 const Wall = ({ start, end, height, thickness = 0.2, color = "#cccccc", opacity = 1, isPreview = false }) => {

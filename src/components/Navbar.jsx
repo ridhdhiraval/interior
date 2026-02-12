@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom'
+
 export default function Navbar() {
   return (
     <>
@@ -17,8 +19,9 @@ export default function Navbar() {
           padding: 0 40px;
           z-index: 50;
 
-          background: rgba(0, 0, 0, 0.25);
+          background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
           backdrop-filter: blur(6px);
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
           box-sizing: border-box;
         }
 
@@ -68,6 +71,7 @@ export default function Navbar() {
           font-weight: 600;
           color: white;
           letter-spacing: 1px;
+          text-decoration: none;
         }
 
         /* Right link */
@@ -96,19 +100,17 @@ export default function Navbar() {
       {/* ===== NAVBAR JSX ===== */}
       <nav className="navbar-overlay">
         <div className="nav-left">
-          <a href="#">About</a>
-          <a href="#">Prices</a>
-          <a href="#">For Business</a>
-          <a href="#">Blog</a>
-          <a href="#">Contact Us</a>
+          <Link to="/about">About</Link>
+          <Link to="/pricing">Prices</Link>
+          <Link to="/contact">Contact Us</Link>
         </div>
 
         <div className="nav-center">
-          <span className="nav-logo">ROOMAI</span>
+          <Link to="/" className="nav-logo">ICONIC INTERIOR</Link>
         </div>
 
         <div className="nav-right">
-          <a href="#">Sign in</a>
+          <Link to="/signin">Sign in</Link>
         </div>
       </nav>
     </>

@@ -12,6 +12,7 @@ import Pricing from "./components/Pricing"
 import ContactUs from "./components/ContactUs"
 import About from "./components/About"
 import SignIn from "./components/SignIn"
+import Payment from "./components/Payment"
 
 
 
@@ -34,6 +35,7 @@ export default function App() {
         <Route path="/virtualai" element={<VirtualAI />} />
         <Route path="/manual-design" element={<ManualDesign />} />
         <Route path="/pricing" element={<Pricing />} />
+        <Route path="/subscribe/:plan" element={<Payment />} />
         <Route path="/contact" element={<ContactUs />} />
         <Route path="/about" element={<About />} />
         <Route path="/signin" element={<SignIn />} />

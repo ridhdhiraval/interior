@@ -100,6 +100,7 @@ export default function Navbar() {
       {/* ===== NAVBAR JSX ===== */}
       <nav className="navbar-overlay">
         <div className="nav-left">
+          <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Home</Link>
           <Link to="/about">About</Link>
           <Link to="/pricing">Prices</Link>
           <Link to="/contact">Contact Us</Link>

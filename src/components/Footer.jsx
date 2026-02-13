@@ -4,8 +4,9 @@ export default function Footer() {
       <footer className="footer">
         <div className="footer-container">
 
-          <div className="footer-section">
-            <h2>Iconic Interiors</h2>
+          {/* Logo Section */}
+          <div className="footer-section brand">
+            <img src="/logo.png" alt="Iconic Interiors Logo" className="footer-logo" />
             <p>
               Creating modern, elegant, and functional interior designs for
               beautiful living spaces.
@@ -54,12 +55,21 @@ export default function Footer() {
           gap: 40px;
         }
 
-        .footer-section h2,
+        .brand {
+          display: flex;
+          flex-direction: column;
+          gap: 15px;
+        }
+
+        .footer-logo {
+          width: 160px;
+          object-fit: contain;
+        }
+
         .footer-section h3 {
           margin-bottom: 15px;
         }
 
-        .footer-section h2::after,
         .footer-section h3::after {
           content: "";
           width: 40px;

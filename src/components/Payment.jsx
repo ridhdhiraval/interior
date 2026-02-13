@@ -156,7 +156,7 @@ export default function Payment() {
           <div>
             <div className="section-title">Scan QR to Pay</div>
             <div className="qr-wrap">
-              <img src="/qr-placeholder.svg" alt="UPI QR" width="200" height="200" />
+              <img src="/qr-placeholder.jpg" alt="UPI QR" width="200" height="200" />
             </div>
           </div>
         </div>

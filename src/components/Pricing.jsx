@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import Footer from './Footer';
 
 const Pricing = () => {
@@ -24,7 +25,7 @@ const Pricing = () => {
       }
     },
     {
-      name: 'BASIC',
+      name: 'STANDARD',
       price: billingCycle === 'year' ? '5' : '9',
       active: false,
       features: {
@@ -429,10 +430,10 @@ const Pricing = () => {
                 <div className="plan-price">{plan.price === '0' ? '0' : `$${plan.price}`}<span>{plan.price !== '0' && '/MON'}</span></div>
                 {plan.name === 'FREE' ? (
                   <button className="plan-btn active-plan">YOUR ACTIVE PLAN</button>
-                ) : plan.name === 'BASIC' ? (
-                  <button className="plan-btn basic-btn">GET BASIC</button>
+                ) : plan.name === 'STANDARD' ? (
+                  <Link className="plan-btn basic-btn" to="/subscribe/standard">GET STANDARD</Link>
                 ) : (
-                  <button className="plan-btn pro-btn">GET PRO</button>
+                  <Link className="plan-btn pro-btn" to="/subscribe/pro">GET PRO</Link>
                 )}
               </div>
               <div className="feature-value">{plan.features.projects}</div>

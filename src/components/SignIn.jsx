@@ -2,225 +2,249 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const SignIn = () => {
+
   const [isSignUp, setIsSignUp] = useState(false);
 
   return (
-    <div className="signin-page">
+    <div className="auth-page">
+
       <style>{`
-        .signin-page {
+
+        /* FULL PAGE */
+        .auth-page {
           min-height: 100vh;
           display: flex;
           align-items: center;
           justify-content: center;
           background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
           font-family: 'Inter', sans-serif;
-          padding: 20px;
+          padding: 40px 20px;
         }
 
-        .signin-card {
-          background: white;
+        /* MAIN CARD */
+        .auth-card {
           width: 100%;
-          max-width: 450px;
-          padding: 50px;
+          max-width: 1000px;
+          background: #fefaf2;
           border-radius: 20px;
-          box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-          text-align: center;
-          transition: all 0.4s ease;
+          overflow: hidden;
+          display: flex;
+          box-shadow: 0 20px 50px rgba(0,0,0,0.4);
         }
 
-        .signin-logo {
-          font-size: 28px;
+        /* LEFT IMAGE */
+        .left-section {
+          flex: 1;
+          background-image: url("/sofa.png"); /* Put sofa.png inside public folder */
+          background-size: cover;
+          background-position: center;
+          min-height: 520px;
+        }
+
+        /* RIGHT FORM SECTION */
+        .right-section {
+          flex: 1;
+          padding: 40px 50px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+        }
+
+        .logo {
+          font-size: 26px;
           font-weight: 800;
+          text-align: center;
           color: #2c3e50;
-          margin-bottom: 10px;
-          display: block;
           text-decoration: none;
+          margin-bottom: 5px;
         }
 
-        .signin-card h2 {
-          font-size: 24px;
-          color: #333;
-          margin-bottom: 30px;
-          font-weight: 500;
+        .subtitle {
+          text-align: center;
+          margin-bottom: 25px;
+          color: #555;
+          font-size: 16px;
         }
 
         .form-group {
-          margin-bottom: 20px;
-          text-align: left;
+          margin-bottom: 18px;
         }
 
         .form-group label {
           display: block;
           font-size: 13px;
           font-weight: 600;
+          margin-bottom: 6px;
           color: #777;
-          margin-bottom: 8px;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
         }
 
         .form-group input {
           width: 100%;
-          padding: 14px;
-          border: 1px solid #eee;
-          background: #fcfcfc;
+          padding: 12px;
           border-radius: 8px;
-          font-size: 15px;
-          transition: 0.3s;
+          border: 1px solid #ddd;
+          background: #fff;
+          font-size: 14px;
           box-sizing: border-box;
+          transition: 0.3s;
         }
 
         .form-group input:focus {
-          border-color: #3498db;
-          background: white;
+          border-color: #4c6ef5;
           outline: none;
-          box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1);
+          box-shadow: 0 0 0 4px rgba(76,110,245,0.1);
         }
 
         .forgot-pass {
-          display: block;
           text-align: right;
           font-size: 13px;
-          color: #3498db;
-          text-decoration: none;
-          margin-bottom: 25px;
+          color: #4c6ef5;
+          margin-bottom: 18px;
+          cursor: pointer;
         }
 
-        .signin-btn {
+        .auth-btn {
           width: 100%;
-          padding: 16px;
-          background: #3498db;
-          color: white;
+          padding: 14px;
+          background: #4c6ef5;
           border: none;
           border-radius: 8px;
+          color: white;
           font-size: 16px;
           font-weight: 600;
           cursor: pointer;
           transition: 0.3s;
-          margin-bottom: 25px;
         }
 
-        .signin-btn:hover {
-          background: #2980b9;
+        .auth-btn:hover {
+          background: #364fc7;
           transform: translateY(-2px);
-          box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
         }
 
         .divider {
           display: flex;
           align-items: center;
-          margin: 30px 0;
-          color: #bbb;
-          font-size: 14px;
+          margin: 25px 0;
+          font-size: 13px;
+          color: #aaa;
         }
 
-        .divider::before, .divider::after {
+        .divider::before,
+        .divider::after {
           content: "";
           flex: 1;
           height: 1px;
-          background: #eee;
+          background: #ddd;
         }
 
         .divider span {
-          padding: 0 15px;
-        }
-
-        .social-signin {
-          display: flex;
-          gap: 15px;
-          margin-bottom: 30px;
+          padding: 0 10px;
         }
 
         .social-btn {
-          flex: 1;
+          width: 100%;
           padding: 12px;
-          border: 1px solid #eee;
           border-radius: 8px;
+          border: 1px solid #ddd;
           background: white;
           cursor: pointer;
-          transition: 0.3s;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 10px;
           font-size: 14px;
-          color: #555;
+          margin-bottom: 15px;
+          transition: 0.3s;
         }
 
         .social-btn:hover {
           background: #f9f9f9;
-          border-color: #ddd;
         }
 
-        .signup-link {
+        .toggle-text {
+          text-align: center;
           font-size: 14px;
-          color: #777;
+          margin-top: 10px;
         }
 
-        .signup-link span {
-          color: #3498db;
-          text-decoration: none;
+        .toggle-text span {
+          color: #4c6ef5;
           font-weight: 600;
           cursor: pointer;
         }
 
-        @media (max-width: 480px) {
-          .signin-card {
+        /* RESPONSIVE */
+        @media (max-width: 900px) {
+          .auth-card {
+            flex-direction: column;
+          }
+
+          .left-section {
+            height: 250px;
+          }
+
+          .right-section {
             padding: 30px;
           }
         }
+
       `}</style>
 
-      <div className="signin-card">
-        <Link to="/" className="signin-logo">ICONIC INTERIORS</Link>
-        <h2>{isSignUp ? 'Create Account' : 'Welcome Back'}</h2>
-        
-        <form onSubmit={(e) => e.preventDefault()}>
-          {isSignUp && (
+      <div className="auth-card">
+
+        {/* LEFT IMAGE */}
+        <div className="left-section"></div>
+
+        {/* RIGHT FORM */}
+        <div className="right-section">
+
+          <Link to="/" className="logo">ICONIC INTERIORS</Link>
+
+          <div className="subtitle">
+            {isSignUp ? "Create Your Account" : "Welcome Back"}
+          </div>
+
+          <form onSubmit={(e) => e.preventDefault()}>
+
+            {isSignUp && (
+              <div className="form-group">
+                <label>Full Name</label>
+                <input type="text" placeholder="Komal Mishra" required />
+              </div>
+            )}
+
             <div className="form-group">
-              <label>Full Name</label>
-              <input type="text" placeholder="Komal Mishra" required />
+              <label>Email Address</label>
+              <input type="email" placeholder="name@company.com" required />
             </div>
-          )}
-          
-          <div className="form-group">
-            <label>Email Address</label>
-            <input type="email" placeholder="name@company.com" required />
+
+            <div className="form-group">
+              <label>Password</label>
+              <input type="password" placeholder="••••••••" required />
+            </div>
+
+            {!isSignUp && (
+              <div className="forgot-pass">Forgot password?</div>
+            )}
+
+            <button className="auth-btn">
+              {isSignUp ? "Sign Up" : "Sign In"}
+            </button>
+
+          </form>
+
+          <div className="divider">
+            <span>OR CONTINUE WITH</span>
           </div>
-          
-          <div className="form-group">
-            <label>Password</label>
-            <input type="password" placeholder="••••••••" required />
+
+          <button className="social-btn">Continue with Google</button>
+
+          <div className="toggle-text">
+            {isSignUp
+              ? "Already have an account? "
+              : "Don't have an account? "}
+            <span onClick={() => setIsSignUp(!isSignUp)}>
+              {isSignUp ? "Sign In" : "Create one for free"}
+            </span>
           </div>
-          
-          {!isSignUp && <a href="#" className="forgot-pass">Forgot password?</a>}
-          
-          <button type="submit" className="signin-btn">
-            {isSignUp ? 'Sign Up' : 'Sign In'}
-          </button>
-        </form>
 
-        <div className="divider">
-          <span>OR CONTINUE WITH</span>
         </div>
-
-        <div className="social-signin">
-          <button className="social-btn">
-            <img src="https://www.google.com/favicon.ico" width="16" alt="Google" />
-            Google
-          </button>
-          <button className="social-btn">
-            <img src="https://github.com/favicon.ico" width="16" alt="GitHub" />
-            GitHub
-          </button>
-        </div>
-
-        <p className="signup-link">
-          {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
-          <span onClick={() => setIsSignUp(!isSignUp)}>
-            {isSignUp ? 'Sign In' : 'Create one for free'}
-          </span>
-        </p>
       </div>
     </div>
   );

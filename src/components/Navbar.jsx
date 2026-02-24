@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 export default function Navbar() {
   return (
     <>
-      {/* ===== NAVBAR CSS ===== */}
       <style>{`
         .navbar-overlay {
           position: fixed;
@@ -11,21 +10,29 @@ export default function Navbar() {
           left: 0;
           width: 100%;
           height: 70px;
-
           display: flex;
           align-items: center;
           justify-content: space-between;
-
           padding: 0 40px;
           z-index: 50;
-
           background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
           backdrop-filter: blur(6px);
           box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
           box-sizing: border-box;
         }
 
-        /* Left links */
+        /* LEFT AREA */
+        .nav-left {
+          display: flex;
+          align-items: center;
+        }
+
+        .nav-logo-img {
+          height: 28px;
+          margin-right: 14px;
+          cursor: pointer;
+        }
+
         .nav-left a {
           margin-right: 18px;
           color: white;
@@ -33,33 +40,9 @@ export default function Navbar() {
           font-size: 13px;
           opacity: 0.9;
           position: relative;
-          transition: color 0.3s ease;
         }
 
-        /* Hover underline animation */
-        .nav-left a::after,
-        .nav-right a::after {
-          content: "";
-          position: absolute;
-          left: 0;
-          bottom: -6px;
-          width: 0%;
-          height: 2px;
-          background: #ffffff;
-          transition: width 0.3s ease;
-        }
-
-        .nav-left a:hover::after,
-        .nav-right a:hover::after {
-          width: 100%;
-        }
-
-        .nav-left a:hover,
-        .nav-right a:hover {
-          color: #ffffff;
-        }
-
-        /* Center logo */
+        /* Center logo text */
         .nav-center {
           position: absolute;
           left: 50%;
@@ -74,12 +57,21 @@ export default function Navbar() {
           text-decoration: none;
         }
 
-        /* Right link */
+        /* RIGHT — IMAGE STYLE SIGN IN BUTTON */
         .nav-right a {
-          color: white;
+          background: #ffffff;
+          color: #000000;
+          padding: 5px 16px;
+          border-radius: 999px;
+          font-size: 12px;
+          font-weight: 500;
           text-decoration: none;
-          font-size: 13px;
-          position: relative;
+          border: 1px solid rgba(0,0,0,0.2);
+          line-height: 1;
+        }
+
+        .nav-right a:hover {
+          background: #f3f3f3;
         }
 
         /* Responsive */
@@ -94,24 +86,34 @@ export default function Navbar() {
           .nav-logo {
             font-size: 18px;
           }
+          .nav-logo-img {
+            height: 24px;
+          }
         }
       `}</style>
-      
-      {/* ===== NAVBAR JSX ===== */}
+
       <nav className="navbar-overlay">
         <div className="nav-left">
-          <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Home</Link>
+          <Link to="/">
+            <img
+              src="/logo.png"
+              alt="Iconic Interiors Logo"
+              className="nav-logo-img"
+            />
+          </Link>
+
+          <Link to="/">Home</Link>
           <Link to="/about">About</Link>
           <Link to="/pricing">Prices</Link>
           <Link to="/contact">Contact Us</Link>
         </div>
 
         <div className="nav-center">
-          <Link to="/" className="nav-logo">ICONIC INTERIOR</Link>
+          <Link to="/" className="nav-logo">Iconic Interiors</Link>
         </div>
 
         <div className="nav-right">
-          <Link to="/signin">Sign in</Link>
+          <Link to="/signin">Sign In</Link>
         </div>
       </nav>
     </>

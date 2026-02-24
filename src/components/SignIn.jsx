@@ -1,226 +1,231 @@
+// React aur useState hook import kar rahe hain
 import React, { useState } from 'react';
+
+// React Router ka Link component (future navigation ke liye)
 import { Link } from 'react-router-dom';
 
 const SignIn = () => {
+
+  // State banayi hai login aur signup toggle ke liye
   const [isSignUp, setIsSignUp] = useState(false);
 
   return (
-    <div className="signin-page">
+
+    // Main outer container
+    <div className="auth-page">
+
+      {/* Internal CSS styling */}
       <style>{`
-        .signin-page {
-          min-height: 100vh;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-          font-family: 'Inter', sans-serif;
-          padding: 20px;
+
+        /* Full page background styling */
+        .auth-page {
+          min-height: 100vh; /* Full screen height */
+          display: flex; /* Flexbox layout */
+          align-items: center; /* Vertical center */
+          justify-content: center; /* Horizontal center */
+          background: #183642; /* Background color */
+          font-family: 'Inter', sans-serif; /* Font style */
+          padding: 30px; /* Outer spacing */
         }
 
-        .signin-card {
-          background: white;
+        /* Main card container (image + form) */
+        .auth-container {
           width: 100%;
-          max-width: 450px;
-          padding: 50px;
-          border-radius: 20px;
-          box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-          text-align: center;
-          transition: all 0.4s ease;
+          max-width: 1100px; /* Maximum width */
+          display: flex; /* Image and form side by side */
+          border-radius: 20px; /* Rounded corners */
+          overflow: hidden; /* Hide overflow outside radius */
+          box-shadow: 0 20px 50px rgba(0,0,0,0.4); /* Shadow effect */
         }
 
-        .signin-logo {
-          font-size: 28px;
+        /* LEFT IMAGE SECTION */
+        .left-section {
+          flex: 1; /* Equal width */
+          background: url("/sofa.jpg") center/cover no-repeat; /* Background image */
+          min-height: 550px; /* Minimum height */
+        }
+
+        /* RIGHT FORM SECTION */
+        .right-section {
+          flex: 1; /* Equal width */
+          background: #e8dfd3; /* Beige background */
+          padding: 60px; /* Inner spacing */
+          display: flex;
+          flex-direction: column; /* Vertical layout */
+          justify-content: center; /* Center content vertically */
+        }
+
+        /* Logo text styling */
+        .logo {
+          font-size: 26px;
           font-weight: 800;
-          color: #2c3e50;
+          text-align: center;
           margin-bottom: 10px;
-          display: block;
-          text-decoration: none;
+          letter-spacing: 1px;
         }
 
-        .signin-card h2 {
-          font-size: 24px;
-          color: #333;
+        /* Title styling */
+        .title {
+          text-align: center;
+          font-size: 20px;
           margin-bottom: 30px;
-          font-weight: 500;
         }
 
+        /* Form group spacing */
         .form-group {
           margin-bottom: 20px;
-          text-align: left;
         }
 
+        /* Label styling */
         .form-group label {
-          display: block;
-          font-size: 13px;
+          font-size: 14px;
           font-weight: 600;
-          color: #777;
+          display: block;
           margin-bottom: 8px;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
+          color: #555;
         }
 
+        /* Input field styling */
         .form-group input {
           width: 100%;
-          padding: 14px;
-          border: 1px solid #eee;
-          background: #fcfcfc;
+          padding: 12px;
           border-radius: 8px;
-          font-size: 15px;
-          transition: 0.3s;
-          box-sizing: border-box;
+          border: 1px solid #ccc;
+          background: #f2f2f2;
+          font-size: 14px;
         }
 
+        /* Input focus effect */
         .form-group input:focus {
-          border-color: #3498db;
-          background: white;
           outline: none;
-          box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1);
+          border-color: #4a6cf7;
+          background: #fff;
         }
 
-        .forgot-pass {
-          display: block;
+        /* Forgot password link */
+        .forgot {
           text-align: right;
           font-size: 13px;
-          color: #3498db;
-          text-decoration: none;
-          margin-bottom: 25px;
+          color: #4a6cf7;
+          margin-bottom: 20px;
+          cursor: pointer;
         }
 
-        .signin-btn {
+        /* Button styling */
+        .btn {
           width: 100%;
-          padding: 16px;
-          background: #3498db;
+          padding: 14px;
+          background: #4a6cf7;
           color: white;
           border: none;
           border-radius: 8px;
           font-size: 16px;
           font-weight: 600;
           cursor: pointer;
-          transition: 0.3s;
-          margin-bottom: 25px;
+          margin-top: 10px;
+          transition: 0.3s ease;
         }
 
-        .signin-btn:hover {
-          background: #2980b9;
-          transform: translateY(-2px);
-          box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        /* Button hover effect */
+        .btn:hover {
+          background: #3655d1;
         }
 
-        .divider {
-          display: flex;
-          align-items: center;
-          margin: 30px 0;
-          color: #bbb;
+        /* Bottom signup/login text */
+        .bottom-text {
+          text-align: center;
+          margin-top: 20px;
           font-size: 14px;
         }
 
-        .divider::before, .divider::after {
-          content: "";
-          flex: 1;
-          height: 1px;
-          background: #eee;
-        }
-
-        .divider span {
-          padding: 0 15px;
-        }
-
-        .social-signin {
-          display: flex;
-          gap: 15px;
-          margin-bottom: 30px;
-        }
-
-        .social-btn {
-          flex: 1;
-          padding: 12px;
-          border: 1px solid #eee;
-          border-radius: 8px;
-          background: white;
+        /* Clickable toggle text */
+        .bottom-text span {
+          color: #4a6cf7;
           cursor: pointer;
-          transition: 0.3s;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 10px;
-          font-size: 14px;
-          color: #555;
-        }
-
-        .social-btn:hover {
-          background: #f9f9f9;
-          border-color: #ddd;
-        }
-
-        .signup-link {
-          font-size: 14px;
-          color: #777;
-        }
-
-        .signup-link span {
-          color: #3498db;
-          text-decoration: none;
           font-weight: 600;
-          cursor: pointer;
         }
 
-        @media (max-width: 480px) {
-          .signin-card {
-            padding: 30px;
+        /* Responsive for mobile */
+        @media (max-width: 768px) {
+
+          .auth-container {
+            flex-direction: column; /* Stack vertically */
+          }
+
+          .left-section {
+            height: 250px; /* Smaller image on mobile */
+          }
+
+          .right-section {
+            padding: 40px;
           }
         }
+
       `}</style>
 
-      <div className="signin-card">
-        <Link to="/" className="signin-logo">ICONIC INTERIORS</Link>
-        <h2>{isSignUp ? 'Create Account' : 'Welcome Back'}</h2>
-        
-        <form onSubmit={(e) => e.preventDefault()}>
-          {isSignUp && (
+      {/* Main card container */}
+      <div className="auth-container">
+
+        {/* LEFT IMAGE SECTION */}
+        <div className="left-section"></div>
+
+        {/* RIGHT FORM SECTION */}
+        <div className="right-section">
+
+          {/* Website Logo */}
+          <div className="logo">ICONIC INTERIORS</div>
+
+          {/* Dynamic title based on login/signup */}
+          <div className="title">
+            {isSignUp ? "Create Account" : "Welcome Back"}
+          </div>
+
+          {/* Form */}
+          <form onSubmit={(e) => e.preventDefault()}>
+
+            {/* Show Full Name only in Signup mode */}
+            {isSignUp && (
+              <div className="form-group">
+                <label>Full Name</label>
+                <input type="text" placeholder="Komal Mishra" required />
+              </div>
+            )}
+
+            {/* Email field */}
             <div className="form-group">
-              <label>Full Name</label>
-              <input type="text" placeholder="Komal Mishra" required />
+              <label>Email Address</label>
+              <input type="email" placeholder="name@email.com" required />
             </div>
-          )}
-          
-          <div className="form-group">
-            <label>Email Address</label>
-            <input type="email" placeholder="name@company.com" required />
+
+            {/* Password field */}
+            <div className="form-group">
+              <label>Password</label>
+              <input type="password" placeholder="••••••••" required />
+            </div>
+
+            {/* Show forgot password only in login mode */}
+            {!isSignUp && (
+              <div className="forgot">Forgot password?</div>
+            )}
+
+            {/* Submit button */}
+            <button type="submit" className="btn">
+              {isSignUp ? "Sign Up" : "Sign In"}
+            </button>
+
+          </form>
+
+          {/* Toggle between login and signup */}
+          <div className="bottom-text">
+            {isSignUp
+              ? "Already have an account?"
+              : "Don't have an account?"}{" "}
+            <span onClick={() => setIsSignUp(!isSignUp)}>
+              {isSignUp ? "Sign In" : "Create one for free"}
+            </span>
           </div>
-          
-          <div className="form-group">
-            <label>Password</label>
-            <input type="password" placeholder="••••••••" required />
-          </div>
-          
-          {!isSignUp && <a href="#" className="forgot-pass">Forgot password?</a>}
-          
-          <button type="submit" className="signin-btn">
-            {isSignUp ? 'Sign Up' : 'Sign In'}
-          </button>
-        </form>
 
-        <div className="divider">
-          <span>OR CONTINUE WITH</span>
         </div>
-
-        <div className="social-signin">
-          <button className="social-btn">
-            <img src="https://www.google.com/favicon.ico" width="16" alt="Google" />
-            Google
-          </button>
-          <button className="social-btn">
-            <img src="https://github.com/favicon.ico" width="16" alt="GitHub" />
-            GitHub
-          </button>
-        </div>
-
-        <p className="signup-link">
-          {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
-          <span onClick={() => setIsSignUp(!isSignUp)}>
-            {isSignUp ? 'Sign In' : 'Create one for free'}
-          </span>
-        </p>
       </div>
     </div>
   );

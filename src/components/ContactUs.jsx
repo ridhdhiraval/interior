@@ -142,7 +142,7 @@ const ContactUs = () => {
             <div className="info-icon">📞</div>
             <div>
               <strong>Call Us</strong>
-              <p style={{margin:0, fontSize: '14px'}}>+1 (555) 123-4567</p>
+              <p style={{margin:0, fontSize: '14px'}}>+91 (555) 123-4567</p>
             </div>
           </div>
 

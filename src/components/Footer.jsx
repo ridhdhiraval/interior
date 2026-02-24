@@ -10,7 +10,7 @@ export default function Footer() {
             <p>
               Creating modern, elegant, and functional interior designs for
               beautiful living spaces.
-            </p>
+            </p> 
           </div>
 
           <div className="footer-section">
@@ -28,8 +28,6 @@ export default function Footer() {
             <ul>
               <li>AI Interior Design</li>
               <li>Manual Design</li>
-              <li>3D Visualization</li>
-              <li>Consultation</li>
             </ul>
           </div>
 

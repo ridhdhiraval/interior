@@ -17,7 +17,7 @@ export default function Navbar() {
           z-index: 50;
           background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
           backdrop-filter: blur(6px);
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+          box-shadow: 0 2px 10px rgba(125, 101, 101, 0.3);
           box-sizing: border-box;
         }
 

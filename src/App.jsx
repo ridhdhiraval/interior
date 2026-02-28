@@ -13,23 +13,29 @@ import About from "./components/About"
 import SignIn from "./components/SignIn"
 import Payment from "./components/Payment"
 
-
+// ✅ ADMIN APP
+import AdminApp from "./admin/AdminApp"
 
 export default function App() {
   return (
     <>
       <Navbar />
-      <Routes>
-        <Route path="/" element={
-          <>
-            <BeforeAfterHero />   {/* Hero + cards */}
 
-            <AIWorkflow />   
-            <WhatIsSection />
-            <RoomFeatures/>
-            <Footer/>
-          </>
-        } />
+      <Routes>
+        {/* Website */}
+        <Route
+          path="/"
+          element={
+            <>
+              <BeforeAfterHero />
+              <AIWorkflow />
+              <WhatIsSection />
+              <RoomFeatures />
+              <Footer />
+            </>
+          }
+        />
+
         <Route path="/virtualai" element={<VirtualAI />} />
         <Route path="/manual-design" element={<ManualDesign />} />
         <Route path="/pricing" element={<Pricing />} />
@@ -37,6 +43,9 @@ export default function App() {
         <Route path="/contact" element={<ContactUs />} />
         <Route path="/about" element={<About />} />
         <Route path="/signin" element={<SignIn />} />
+
+        {/* 🔐 ADMIN ROUTE */}
+        <Route path="/admin/*" element={<AdminApp />} />
       </Routes>
     </>
   )

@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
 export default function Footer() {
   return (
@@ -9,14 +9,19 @@ export default function Footer() {
           {/* Logo Section */}
           <div className="footer-section brand">
             <Link to="/">
-              <img src="/logo.png" alt="Iconic Interiors Logo" className="footer-logo" />
+              <img
+                src="/logo.png"
+                alt="Iconic Interiors Logo"
+                className="footer-logo"
+              />
             </Link>
             <p>
               Creating modern, elegant, and functional interior designs for
               beautiful living spaces.
-            </p> 
+            </p>
           </div>
 
+          {/* Quick Links */}
           <div className="footer-section">
             <h3>Quick Links</h3>
             <ul>
@@ -27,6 +32,7 @@ export default function Footer() {
             </ul>
           </div>
 
+          {/* Services */}
           <div className="footer-section">
             <h3>Services</h3>
             <ul>

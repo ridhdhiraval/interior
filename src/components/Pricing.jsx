@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import Footer from './Footer';
 
 const Pricing = () => {
   const [billingCycle, setBillingCycle] = useState('year');
@@ -470,7 +469,6 @@ const Pricing = () => {
           ))}
         </div>
       </div>
-      <Footer />
     </div>
   );
 };

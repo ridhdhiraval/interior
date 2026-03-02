@@ -31,13 +31,11 @@ export default function App() {
               <AIWorkflow />
               <WhatIsSection />
               <RoomFeatures />
-              <Footer />
             </>
           }
         />
 
         <Route path="/virtualai" element={<VirtualAI />} />
-        <Route path="/aiworkflow" element={<AIWorkflow />} />
         <Route path="/manual-design" element={<ManualDesign />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/subscribe/:plan" element={<Payment />} />
@@ -48,6 +46,7 @@ export default function App() {
         {/* 🔐 ADMIN ROUTE */}
         <Route path="/admin/*" element={<AdminApp />} />
       </Routes>
+      <Footer />
     </>
   )
 }

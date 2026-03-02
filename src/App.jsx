@@ -37,6 +37,7 @@ export default function App() {
         />
 
         <Route path="/virtualai" element={<VirtualAI />} />
+        <Route path="/aiworkflow" element={<AIWorkflow />} />
         <Route path="/manual-design" element={<ManualDesign />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/subscribe/:plan" element={<Payment />} />

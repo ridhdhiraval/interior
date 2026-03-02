@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 export default function Footer() {
   return (
     <>
@@ -6,7 +8,9 @@ export default function Footer() {
 
           {/* Logo Section */}
           <div className="footer-section brand">
-            <img src="/logo.png" alt="Iconic Interiors Logo" className="footer-logo" />
+            <Link to="/">
+              <img src="/logo.png" alt="Iconic Interiors Logo" className="footer-logo" />
+            </Link>
             <p>
               Creating modern, elegant, and functional interior designs for
               beautiful living spaces.
@@ -16,18 +20,18 @@ export default function Footer() {
           <div className="footer-section">
             <h3>Quick Links</h3>
             <ul>
-              <li>Home</li>
-              <li>About</li>
-              <li>Gallery</li>
-              <li>Contact</li>
+              <li><Link to="/">Home</Link></li>
+              <li><Link to="/about">About</Link></li>
+              <li><Link to="/pricing">Pricing</Link></li>
+              <li><Link to="/contact">Contact</Link></li>
             </ul>
           </div>
 
           <div className="footer-section">
             <h3>Services</h3>
             <ul>
-              <li>AI Interior Design</li>
-              <li>Manual Design</li>
+              <li><Link to="/virtualai">AI Interior Design</Link></li>
+              <li><Link to="/manual-design">Manual Design</Link></li>
             </ul>
           </div>
 
@@ -94,6 +98,13 @@ export default function Footer() {
           cursor: pointer;
           color: #dcdcdc;
           transition: all 0.3s ease;
+        }
+
+        .footer-section ul li a {
+          color: inherit;
+          text-decoration: none;
+          display: block;
+          width: 100%;
         }
 
         .footer-section ul li:hover {

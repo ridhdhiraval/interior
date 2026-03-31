@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Canvas } from "@react-three/fiber";
 import { Text, Edges, MapControls } from "@react-three/drei";
 import { usePlanner } from "../planner/PlannerContext";
+import * as THREE from 'three';
 
 // --- Blueprint Wall Component ---
-const Wall = ({ start, end, height, thickness = 0.2, color = "#cccccc", opacity = 1, isPreview = false }) => {
+const Wall = ({ id, start, end, height, thickness = 0.2, color = "#cccccc", opacity = 1, isPreview = false, isSelected = false }) => {
+  const { state, actions } = usePlanner();
+
   // Calculate position, rotation, and length based on start/end points
   const dx = end[0] - start[0];
   const dz = end[2] - start[2];
@@ -17,14 +20,7 @@ const Wall = ({ start, end, height, thickness = 0.2, color = "#cccccc", opacity 
   const cy = height / 2;
 
   // Measurement Text
-  // We place text slightly above the wall (in 2D top view terms: "above" means -Z or +Z in local space)
-  // Since we are top-down, we want text to be readable.
-  // Rotation: -angle aligns with wall.
-  // Position: Offset by thickness/2 + padding
   const textOffset = thickness / 2 + 0.4;
-  
-  // Calculate text position in world space
-  // We need to offset from center perpendicular to wall direction
   const perpX = -Math.sin(angle);
   const perpZ = Math.cos(angle);
   const textX = cx + perpX * textOffset;
@@ -33,32 +29,43 @@ const Wall = ({ start, end, height, thickness = 0.2, color = "#cccccc", opacity 
   return (
     <group>
       {/* Wall Mesh (Grey Fill) */}
-      <mesh position={[cx, cy, cz]} rotation={[0, -angle, 0]}>
+      <mesh 
+        position={[cx, cy, cz]} 
+        rotation={[0, -angle, 0]}
+        onClick={(e) => {
+          if (state.activeTool === 'CHANGE_HEIGHT' && !isPreview) {
+            e.stopPropagation();
+            actions.selectWall(id);
+          }
+        }}
+      >
         <boxGeometry args={[length, height, thickness]} />
-        <meshBasicMaterial color={color} transparent opacity={opacity} />
-        {/* Dark Outline */}
-        <Edges color="#555555" threshold={15} />
+        <meshBasicMaterial color={isSelected ? "#e6f2d5" : color} transparent opacity={opacity} />
+        {/* Outline */}
+        <Edges color={isSelected ? "#8cc63f" : "#555555"} threshold={15} />
       </mesh>
 
-      {/* Start Node */}
-      <mesh position={[start[0], height/2, start[2]]} rotation={[-Math.PI/2, 0, 0]}>
-        <circleGeometry args={[thickness * 0.8, 16]} />
-        <meshBasicMaterial color="#999" />
-        <Edges color="#555" />
-      </mesh>
-      
-      {/* End Node */}
-      <mesh position={[end[0], height/2, end[2]]} rotation={[-Math.PI/2, 0, 0]}>
-        <circleGeometry args={[thickness * 0.8, 16]} />
-        <meshBasicMaterial color="#999" />
-        <Edges color="#555" />
-      </mesh>
+      {/* Nodes */}
+      {!isPreview && (
+        <>
+          <mesh position={[start[0], height/2, start[2]]} rotation={[-Math.PI/2, 0, 0]}>
+            <circleGeometry args={[thickness * 0.8, 16]} />
+            <meshBasicMaterial color="#999" />
+            <Edges color="#555" />
+          </mesh>
+          <mesh position={[end[0], height/2, end[2]]} rotation={[-Math.PI/2, 0, 0]}>
+            <circleGeometry args={[thickness * 0.8, 16]} />
+            <meshBasicMaterial color="#999" />
+            <Edges color="#555" />
+          </mesh>
+        </>
+      )}
 
       {/* Dimension Label */}
       {!isPreview && (
         <Text
-          position={[textX, height + 0.5, textZ]} // Lifted up to be above everything
-          rotation={[-Math.PI / 2, 0, -angle]} // Rotate to lay flat and align with wall
+          position={[textX, height + 0.5, textZ]} // Lifted up
+          rotation={[-Math.PI / 2, 0, -angle]} // Rotate to lay flat
           fontSize={0.4}
           color="black"
           anchorX="center"
@@ -68,6 +75,30 @@ const Wall = ({ start, end, height, thickness = 0.2, color = "#cccccc", opacity 
         </Text>
       )}
     </group>
+  );
+};
+
+// --- Floor Component ---
+const Floor = ({ points, color = "#e0e0e0", isPreview = false }) => {
+  const shape = useMemo(() => {
+    if (points.length < 3) return null;
+    const s = new THREE.Shape();
+    s.moveTo(points[0][0], -points[0][2]);
+    for (let i = 1; i < points.length; i++) {
+        s.lineTo(points[i][0], -points[i][2]);
+    }
+    s.closePath();
+    return s;
+  }, [points]);
+
+  if (!shape) return null;
+
+  return (
+    <mesh rotation={[-Math.PI/2, 0, 0]} position={[0, -0.01, 0]}>
+      <shapeGeometry args={[shape]} />
+      <meshBasicMaterial color={color} side={THREE.DoubleSide} transparent opacity={isPreview ? 0.4 : 1} />
+      <Edges color="#aaa" />
+    </mesh>
   );
 };
 
@@ -85,7 +116,7 @@ const Furniture = ({ item, x, z, rotation = 0, isPreview = false }) => {
         <Edges color="#333" />
       </mesh>
       
-      {/* Direction Indicator (Triangle) */}
+      {/* Direction Indicator */}
       <mesh position={[0, 0.51, -depthM/2 + 0.1]} rotation={[-Math.PI/2, 0, 0]}>
         <circleGeometry args={[0.1, 3]} />
         <meshBasicMaterial color="#333" />
@@ -118,19 +149,65 @@ const InteractionPlane = () => {
       return;
     }
 
-    // --- Wall Drawing ---
+    // --- Single Wall Drawing ---
     if (state.activeTool === 'WALL') {
       e.stopPropagation();
-
       if (!startPoint) {
-        // First click: Start wall
         setStartPoint(point);
       } else {
-        // Second click: Finish wall
         actions.addWall({ start: startPoint, end: point });
-        // Chain: Start next wall from this end point
-        setStartPoint(point); 
+        setStartPoint(null); // Finish wall, user has to click again for next decoupled wall
+        actions.clearPreviewWall();
       }
+    }
+
+    // --- Custom Polyline Shape Wall Drawing ---
+    if (state.activeTool === 'CUSTOM_SHAPE') {
+      e.stopPropagation();
+      if (!startPoint) {
+        setStartPoint(point);
+      } else {
+        actions.addWall({ start: startPoint, end: point });
+        setStartPoint(point); // Chain next wall to this one
+      }
+    }
+
+    // --- Room Drawing ---
+    if (state.activeTool === 'ROOM') {
+      e.stopPropagation();
+      if (!startPoint) {
+        setStartPoint(point);
+      } else {
+        const p1 = startPoint;
+        const p3 = point;
+        const p2 = [p1[0], 0, p3[2]];
+        const p4 = [p3[0], 0, p1[2]];
+        
+        actions.addWalls([
+          { start: p1, end: p2 },
+          { start: p2, end: p3 },
+          { start: p3, end: p4 },
+          { start: p4, end: p1 },
+        ]);
+        setStartPoint(null);
+        actions.clearPreviewRoom();
+      }
+    }
+
+    // --- Floor Drawing ---
+    if (state.activeTool === 'FLOOR') {
+      e.stopPropagation();
+      if (state.previewFloorPoints.length === 0) {
+        actions.addFloorPoint(point); // Start
+        actions.addFloorPoint(point); // Hover
+      } else {
+        actions.addFloorPoint(point); // Add fixed point
+      }
+    }
+    
+    if (state.activeTool === 'CHANGE_HEIGHT') {
+      // clicking empty space deselects
+      actions.selectWall(null);
     }
   };
 
@@ -138,8 +215,16 @@ const InteractionPlane = () => {
     const point = [e.point.x, 0, e.point.z];
     setHoverPoint(point);
 
-    if (state.activeTool === 'WALL' && startPoint) {
-      actions.updatePreview({ start: startPoint, end: point, height: state.wallHeight });
+    if ((state.activeTool === 'WALL' || state.activeTool === 'CUSTOM_SHAPE') && startPoint) {
+      actions.updatePreviewWall({ start: startPoint, end: point, height: state.wallHeight });
+    }
+
+    if (state.activeTool === 'ROOM' && startPoint) {
+      actions.updatePreviewRoom({ start: startPoint, end: point });
+    }
+
+    if (state.activeTool === 'FLOOR' && state.previewFloorPoints.length > 0) {
+      actions.updateFloorPreviewPoint(point);
     }
   };
 
@@ -151,9 +236,20 @@ const InteractionPlane = () => {
       return;
     }
 
-    if (state.activeTool === 'WALL') {
+    if (state.activeTool === 'WALL' || state.activeTool === 'CUSTOM_SHAPE') {
       setStartPoint(null);
-      actions.clearPreview();
+      actions.clearPreviewWall();
+    }
+
+    if (state.activeTool === 'ROOM') {
+      setStartPoint(null);
+      actions.clearPreviewRoom();
+    }
+
+    if (state.activeTool === 'FLOOR') {
+      // Remove trailing hover point and finish
+      const finalPoints = state.previewFloorPoints.slice(0, -1);
+      actions.finishFloor(finalPoints);
     }
   };
 
@@ -161,7 +257,7 @@ const InteractionPlane = () => {
     <group>
       <mesh 
         rotation={[-Math.PI / 2, 0, 0]} 
-        position={[0, -0.01, 0]} 
+        position={[0, -0.02, 0]} 
         onClick={handlePlaneClick}
         onPointerMove={handlePointerMove}
         onContextMenu={handleContextMenu}
@@ -190,46 +286,83 @@ export default function PlannerCanvas() {
     <Canvas 
       orthographic 
       camera={{ position: [0, 50, 0], zoom: 40, up: [0, 0, -1], near: 0.1, far: 1000 }}
-      shadows={false} // Disable shadows for clean 2D look
+      shadows={false}
     >
-      {/* White Background */}
-      <color attach="background" args={['#ffffff']} />
-      
-      {/* Even Lighting */}
+      <color attach="background" args={['#00000000']} />
       <ambientLight intensity={1.5} />
       
-      {/* Interaction Plane & Controls */}
       <InteractionPlane />
+
+      {/* Render Floors */}
+      {state.floors.map((f, i) => (
+        <Floor key={i} points={f.points} />
+      ))}
+      
+      {/* Floor Preview Highlight */}
+      {state.activeTool === 'FLOOR' && state.previewFloorPoints.length > 2 && (
+        <Floor points={state.previewFloorPoints} color="#8cc63f" isPreview={true} />
+      )}
 
       {/* Render Existing Walls */}
       {state.walls.map((w, i) => (
-        <Wall key={i} start={w.start} end={w.end} height={w.height / 100} />
+        <Wall 
+          key={w.id || i} 
+          id={w.id}
+          start={w.start} 
+          end={w.end} 
+          height={w.height / 100} 
+          thickness={w.thickness ? w.thickness / 100 : 0.2}
+          isSelected={state.selectedWallId === w.id}
+        />
       ))}
 
-      {/* Render Preview Wall */}
+      {/* Render Single Preview Wall */}
       {state.previewWall && (
         <Wall 
           start={state.previewWall.start} 
           end={state.previewWall.end} 
-          height={state.previewWall.height / 100} 
+          height={state.wallHeight / 100} 
+          thickness={state.wallThickness / 100}
           color="#999" 
           opacity={0.6}
           isPreview={true}
         />
       )}
 
+      {/* Render Room Preview */}
+      {state.previewRoom && (
+        <group>
+          {(() => {
+            const p1 = state.previewRoom.start;
+            const p3 = state.previewRoom.end;
+            const p2 = [p1[0], 0, p3[2]];
+            const p4 = [p3[0], 0, p1[2]];
+            const th = state.wallThickness / 100;
+            const h = state.wallHeight / 100;
+            
+            return (
+              <>
+                <Wall start={p1} end={p2} height={h} thickness={th} color="#999" opacity={0.5} isPreview />
+                <Wall start={p2} end={p3} height={h} thickness={th} color="#999" opacity={0.5} isPreview />
+                <Wall start={p3} end={p4} height={h} thickness={th} color="#999" opacity={0.5} isPreview />
+                <Wall start={p4} end={p1} height={h} thickness={th} color="#999" opacity={0.5} isPreview />
+              </>
+            );
+          })()}
+        </group>
+      )}
+
       {/* Render Furniture */}
       {state.furniture.map((f) => (
         <Furniture 
           key={f.id} 
-          item={f.item || f} // Handle legacy or structure change
+          item={f.item || f}
           x={f.x} 
           z={f.z} 
           rotation={f.rotation} 
         />
       ))}
 
-      {/* 2D Pan/Zoom Controls */}
       <MapControls 
         enableRotate={false} 
         screenSpacePanning={true}

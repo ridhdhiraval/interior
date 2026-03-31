@@ -1,12 +1,19 @@
 import React, { useState } from "react";
 import PlannerCanvas from "./PlannerCanvas";
 import { usePlanner } from "../planner/PlannerContext";
-import { furnitureCategories, furnitureItems } from "../planner/furnitureData";
+import { 
+  furnitureCategories, 
+  furnitureItems,
+  catalogCategories,
+  catalogSubCategories,
+  catalogItems
+} from "../planner/furnitureData";
 
 export default function ManualDesign() {
   const { state, actions } = usePlanner();
   const [activeTab, setActiveTab] = useState('CONSTRUCTION'); // CONSTRUCTION, FURNITURE, DECOR, HUMAN, SEARCH
-  const [furnitureCategory, setFurnitureCategory] = useState(null); // If null, show categories. Else show items.
+  // Array representing hierarchical path of catalogs (e.g. ['living', 'upholstered'])
+  const [catalogPath, setCatalogPath] = useState([]); 
 
   const handleToolClick = (tool) => {
     actions.setTool(tool === state.activeTool ? null : tool);
@@ -14,16 +21,16 @@ export default function ManualDesign() {
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
-    setFurnitureCategory(null); // Reset furniture view
-    actions.setTool(null); // Reset tool
+    setCatalogPath([]);
+    actions.setTool(null);
   };
 
-  const handleFurnitureCategoryClick = (catId) => {
-    setFurnitureCategory(catId);
+  const handleCatalogItemClick = (id) => {
+    setCatalogPath([...catalogPath, id]);
   };
 
   const handleFurnitureBack = () => {
-    setFurnitureCategory(null);
+    setCatalogPath(catalogPath.slice(0, -1));
   };
 
   // --- Render Sub-Panels ---
@@ -31,103 +38,140 @@ export default function ManualDesign() {
   const renderConstructionPanel = () => (
     <>
       <div className="height-control">
-        <span>Walls height</span>
-        <div className="height-input-wrapper">
-          <input 
-            type="number" 
-            value={state.wallHeight} 
-            onChange={(e) => actions.setWallHeight(Number(e.target.value))}
-          />
-          <span className="unit">cm</span>
+        <span>Walls height {state.wallHeight}</span>
+        <div className="height-input-controls">
+          <button onClick={() => actions.setWallHeight(state.wallHeight + 1)}>▲</button>
+          <button onClick={() => actions.setWallHeight(state.wallHeight - 1)}>▼</button>
         </div>
       </div>
 
       <div className={`tool-item ${state.activeTool === 'WALL' ? 'active' : ''}`} onClick={() => handleToolClick('WALL')}>
-        <span className="tool-icon">🧱</span>
+        <div className="tool-icon-img">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="#a3a3a3"><path d="M4 4h16v4H4zM4 10h8v4H4zM14 10h6v4h-6zM4 16h16v4H4z" /></svg>
+        </div>
         <div className="tool-text">
           <span className="title">Wall</span>
-          <span className="subtitle">Draw walls</span>
         </div>
-        <span className="edit-icon">✏️</span>
       </div>
 
       <div className={`tool-item ${state.activeTool === 'ROOM' ? 'active' : ''}`} onClick={() => handleToolClick('ROOM')}>
-        <span className="tool-icon">⬜</span>
+        <div className="tool-icon-img">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a3a3a3" strokeWidth="3"><rect x="4" y="4" width="16" height="16" rx="2" /></svg>
+        </div>
         <div className="tool-text">
           <span className="title">Room</span>
-          <span className="subtitle">Add square room</span>
         </div>
-        <span className="edit-icon">✏️</span>
       </div>
 
-      <div className="tool-item">
-        <span className="tool-icon">⬢</span>
+      <div className={`tool-item ${state.activeTool === 'CUSTOM_SHAPE' ? 'active' : ''}`} onClick={() => handleToolClick('CUSTOM_SHAPE')}>
+        <div className="tool-icon-img">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a3a3a3" strokeWidth="2"><polygon points="12 2 2 7 12 12 22 7 12 2" fill="#a3a3a3" /><polyline points="2 17 12 22 22 17" /><polyline points="2 12 12 17 22 12" /></svg>
+        </div>
         <div className="tool-text">
-          <span className="title">Custom shape</span>
-          <span className="subtitle">Draw complex room</span>
+          <span className="title">Custom shape wall</span>
         </div>
-        <span className="edit-icon">✏️</span>
       </div>
 
-      <div className="tool-item">
-        <span className="tool-icon">✂️</span>
-        <div className="tool-text">
-          <span className="title">Wall cutout</span>
-          <span className="subtitle">Doors, windows</span>
+      <div className={`tool-item ${state.activeTool === 'FLOOR' ? 'active' : ''}`} onClick={() => handleToolClick('FLOOR')}>
+        <div className="tool-icon-img">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a3a3a3" strokeWidth="2"><polygon points="12 2 2 12 12 22 22 12 12 2" fill="#e5e5e5" /></svg>
         </div>
-        <span className="edit-icon">✏️</span>
-      </div>
-
-      <div className="tool-item">
-        <span className="tool-icon">⬛</span>
         <div className="tool-text">
           <span className="title">Floor</span>
-          <span className="subtitle">Add floor shape</span>
-        </div>
-        <span className="edit-icon">✏️</span>
-      </div>
-      
-      <div className="tool-item">
-        <span className="tool-icon">📏</span>
-        <div className="tool-text">
-          <span className="title">Change height</span>
-          <span className="subtitle">Adjust wall height</span>
         </div>
       </div>
 
-      <div className="tool-item">
-        <span className="tool-icon">📤</span>
-        <div className="tool-text">
-          <span className="title">Upload plan</span>
-          <span className="subtitle">Trace from image</span>
+      <div className={`tool-item ${state.activeTool === 'CHANGE_HEIGHT' ? 'active' : ''}`} onClick={() => handleToolClick('CHANGE_HEIGHT')}>
+        <div className="tool-icon-img">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="#a3a3a3"><rect x="4" y="8" width="8" height="8" /><path d="M18 4v16M15 7l3-3 3 3M15 17l3 3 3-3" /></svg>
         </div>
+        <div className="tool-text">
+          <span className="title">Change wall's height</span>
+        </div>
+      </div>
+
+      <div className="thickness-control">
+        <span>Wall Thickness: {state.wallThickness}</span>
+        <input
+          type="range"
+          min="1"
+          max="50"
+          value={state.wallThickness}
+          onChange={(e) => actions.setWallThickness(Number(e.target.value))}
+          className="thickness-slider"
+        />
       </div>
     </>
   );
 
   const renderFurniturePanel = (typeFilter = 'FURNITURE') => {
-    if (furnitureCategory) {
-      // Show Items
-      const items = furnitureItems[furnitureCategory] || [];
-      const catName = furnitureCategories.find(c => c.id === furnitureCategory)?.name;
+    const currentCatId = catalogPath.length > 0 ? catalogPath[catalogPath.length - 1] : null;
+
+    // 1. Is it a final item grid?
+    if (currentCatId && catalogItems[currentCatId]) {
+      const items = catalogItems[currentCatId] || [];
+      // Find title from anywhere
+      let subName = currentCatId;
+      if (catalogPath.length >= 2) {
+         const parentCatId = catalogPath[catalogPath.length - 2];
+         subName = catalogSubCategories[parentCatId]?.find(c => c.id === currentCatId)?.name || subName;
+      }
 
       return (
-        <div className="furniture-list">
-          <div className="panel-header">
-            <button className="back-btn" onClick={handleFurnitureBack}>←</button>
-            <h3>{catName}</h3>
+        <div className="search-pane">
+          <div className="search-box">
+            <input type="text" placeholder="Search furniture..." />
           </div>
-          <div className="items-grid">
-            {items.map(item => (
-              <div 
-                key={item.id} 
-                className={`furniture-item ${state.placingFurniture?.id === item.id ? 'active' : ''}`}
-                onClick={() => actions.startPlacingFurniture(item)}
-              >
-                <div className="item-thumb">
-                  <img src={item.image} alt={item.name} />
+          <div className="furniture-list">
+            <div className="panel-header" style={{ display: 'flex', alignItems: 'center' }}>
+              <span style={{ cursor: 'pointer', marginRight: '10px' }} onClick={handleFurnitureBack}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6" /></svg>
+              </span>
+              <h3 style={{ margin: 0, fontSize: '14px', color: '#333' }}>{subName}</h3>
+            </div>
+            <div className="items-grid">
+              {items.map(item => (
+                <div
+                  key={item.id}
+                  className={`furniture-item ${state.placingFurniture?.id === item.id ? 'active' : ''}`}
+                  onClick={() => !item.isPremium && actions.startPlacingFurniture(item)}
+                  style={item.isPremium ? { opacity: 0.6 } : {}}
+                >
+                  {item.isPremium && <div className="premium-lock">PRO</div>}
+                  <div className="item-thumb">
+                    <img src={item.image} alt={item.name} />
+                  </div>
+                  <span>{item.name}</span>
                 </div>
-                <span>{item.name}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // 2. Is it a sub-category list?
+    if (currentCatId && catalogSubCategories[currentCatId]) {
+      const subCats = catalogSubCategories[currentCatId] || [];
+      const parentName = catalogCategories.find(c => c.id === currentCatId)?.name || 
+                         (catalogPath.length >= 2 ? catalogSubCategories[catalogPath[catalogPath.length - 2]]?.find(c => c.id === currentCatId)?.name : currentCatId);
+      
+      return (
+        <div className="products-catalog">
+          <div className="panel-header-top">
+            <span className="catalog-icon" style={{ cursor: 'pointer', marginRight: '6px' }} onClick={handleFurnitureBack}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6" /></svg>
+            </span>
+            <span className="catalog-title">{parentName}</span>
+            <span className="catalog-settings">
+               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="4" y1="21" x2="4" y2="14" /><line x1="4" y1="10" x2="4" y2="3" /><line x1="12" y1="21" x2="12" y2="12" /><line x1="12" y1="8" x2="12" y2="3" /><line x1="20" y1="21" x2="20" y2="16" /><line x1="20" y1="12" x2="20" y2="3" /><line x1="1" y1="14" x2="7" y2="14" /><line x1="9" y1="8" x2="15" y2="8" /><line x1="17" y1="16" x2="23" y2="16" /></svg>
+            </span>
+          </div>
+          <div className="catalog-list">
+            {subCats.map(sub => (
+              <div key={sub.id} className="catalog-item" onClick={() => handleCatalogItemClick(sub.id)}>
+                <span className="cat-text">{sub.name}</span>
+                <img src={sub.image} alt={sub.name} className="cat-hero-img" />
               </div>
             ))}
           </div>
@@ -135,24 +179,68 @@ export default function ManualDesign() {
       );
     }
 
-    // Show Categories
     const categoriesToShow = furnitureCategories.filter(c => (c.type || 'FURNITURE') === typeFilter);
 
-    return (
-      <div className="furniture-categories">
-        <h3>{typeFilter === 'FURNITURE' ? 'Furniture' : 'Decoration'}</h3>
-        <div className="search-box">
-          <span className="search-icon">🔍</span>
-          <input type="text" placeholder={`Search ${typeFilter === 'FURNITURE' ? 'furniture' : 'decoration'}...`} />
+    // Level 1: Main Catalog Panel
+    if (typeFilter === 'FURNITURE') {
+      return (
+        <div className="products-catalog">
+          <div className="panel-header-top">
+            <span className="catalog-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" /></svg>
+            </span>
+            <span className="catalog-title">Products catalog</span>
+            <span className="catalog-settings">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="4" y1="21" x2="4" y2="14" /><line x1="4" y1="10" x2="4" y2="3" /><line x1="12" y1="21" x2="12" y2="12" /><line x1="12" y1="8" x2="12" y2="3" /><line x1="20" y1="21" x2="20" y2="16" /><line x1="20" y1="12" x2="20" y2="3" /><line x1="1" y1="14" x2="7" y2="14" /><line x1="9" y1="8" x2="15" y2="8" /><line x1="17" y1="16" x2="23" y2="16" /></svg>
+            </span>
+          </div>
+          <div className="catalog-list">
+            {catalogCategories.map(cat => (
+              <div key={cat.id} className="catalog-item" onClick={() => handleCatalogItemClick(cat.id)}>
+                <span className="cat-text">{cat.name}</span>
+                <img src={cat.image} alt={cat.name} className="cat-hero-img" />
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="categories-list">
-          {categoriesToShow.map(cat => (
-            <div key={cat.id} className="category-item" onClick={() => handleFurnitureCategoryClick(cat.id)}>
-              <span className="cat-icon">{cat.icon}</span>
-              <span className="cat-name">{cat.name}</span>
-              <span className="arrow">›</span>
-            </div>
-          ))}
+      );
+    }
+
+    // Decor/materials layout
+    return (
+      <div className="materials-pane">
+        <div className="material-section">
+          <h4>Floors</h4>
+          <div className="color-grid">
+            <div className="color-box" style={{ background: '#ffffff', border: '1px solid #ddd' }}></div>
+            <div className="color-box" style={{ background: '#f2f2f2' }}></div>
+            <div className="color-box" style={{ background: '#e0e0e0' }}></div>
+            <div className="color-box" style={{ background: '#d4e6f1' }}></div>
+            <div className="color-box" style={{ background: '#f5b041' }}></div>
+            <div className="color-box" style={{ background: '#fcf3cf' }}></div>
+            <div className="color-box" style={{ background: '#d5f5e3' }}></div>
+            <div className="color-box" style={{ background: '#aed6f1' }}></div>
+            <div className="color-box" style={{ background: '#f5cba7' }}></div>
+            <div className="color-box" style={{ background: '#f1948a' }}></div>
+          </div>
+        </div>
+        <div className="material-section">
+          <div className="section-head">
+            <div className="icon-box">🧱</div>
+            <h4>Walls</h4>
+          </div>
+          <div className="color-grid">
+            <div className="color-box" style={{ background: '#333' }}></div>
+            <div className="color-box" style={{ background: '#555' }}></div>
+            <div className="color-box" style={{ background: '#777' }}></div>
+            <div className="color-box" style={{ background: '#999' }}></div>
+            <div className="color-box" style={{ background: '#ccc' }}></div>
+            <div className="color-box" style={{ background: '#8cc63f' }}></div>
+            <div className="color-box" style={{ background: '#2874a6' }}></div>
+            <div className="color-box" style={{ background: '#b03a2e' }}></div>
+            <div className="color-box" style={{ background: '#d35400' }}></div>
+            <div className="color-box" style={{ background: '#196f3d' }}></div>
+          </div>
         </div>
       </div>
     );
@@ -163,41 +251,40 @@ export default function ManualDesign() {
       <div className="rd-root">
         {/* LEFT ICON BAR */}
         <aside className="rd-iconbar">
-          <div 
-            className={`icon ${activeTab === 'CONSTRUCTION' ? 'active' : ''}`} 
+          <div className="user-icon">👤</div>
+
+          <div
+            className={`action-icon ${activeTab === 'CONSTRUCTION' ? 'active' : ''}`}
             onClick={() => handleTabClick('CONSTRUCTION')}
             title="Construction"
           >
-            🧱
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
           </div>
-          <div 
-            className={`icon ${activeTab === 'FURNITURE' ? 'active' : ''}`} 
+
+          <div
+            className={`action-icon ${activeTab === 'FURNITURE' ? 'active' : ''}`}
             onClick={() => handleTabClick('FURNITURE')}
             title="Furniture"
           >
-            🪑
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6" /><path d="M4 12V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4" /><path d="M4 16h16" /></svg>
           </div>
-          <div 
-            className={`icon ${activeTab === 'DECOR' ? 'active' : ''}`} 
+
+          <div
+            className={`action-icon ${activeTab === 'DECOR' ? 'active' : ''}`}
             onClick={() => handleTabClick('DECOR')}
             title="Decoration"
           >
-            🎨
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
           </div>
-          <div 
-            className={`icon ${activeTab === 'HUMAN' ? 'active' : ''}`} 
+
+          <div
+            className={`action-icon ${activeTab === 'HUMAN' ? 'active' : ''}`}
             onClick={() => handleTabClick('HUMAN')}
-            title="First Person View"
+            title="3D View"
           >
-            👤
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" /></svg>
           </div>
-          <div className="icon spacer"></div>
-          <div className="icon search" title="Search">
-            🔍
-          </div>
-          <div className="icon help" title="Help">
-            ❓
-          </div>
+
         </aside>
 
         {/* LEFT TOOL PANEL */}
@@ -205,89 +292,110 @@ export default function ManualDesign() {
           {activeTab === 'CONSTRUCTION' && renderConstructionPanel()}
           {activeTab === 'FURNITURE' && renderFurniturePanel('FURNITURE')}
           {activeTab === 'DECOR' && renderFurniturePanel('DECOR')}
-          {activeTab === 'HUMAN' && <div className="placeholder-panel">First Person View <br/>(Coming Soon)</div>}
+          {activeTab === 'HUMAN' && <div className="placeholder-panel">3D View Options <br />(Coming Soon)</div>}
         </section>
 
         {/* MAIN CANVAS */}
         <main className="rd-canvas">
           <div className="topbar">
-            <button className="upgrade">Upgrade</button>
-            <div className="divider"></div>
-            <span className="lang">EN</span>
+            <div className="app-title">ICONIC INTERIOR</div>
+            <div className="middle-space"></div>
+            <button className="upgrade">UPGRADE</button>
+            <div className="lang">🌐 EN</div>
             <span className="project">My project</span>
             <div className="actions">
-              <button title="Snapshot">📷</button>
-              <button title="Save">💾</button>
-              <button title="Undo">↩️</button>
+              <button title="Trash" className="header-action">🗑️</button>
+              <button title="Copy" className="header-action">📄</button>
+              <button title="Undo" className="header-action">↩️</button>
             </div>
           </div>
 
           <div className="workspace">
             <PlannerCanvas />
-            
-            {state.activeTool === 'WALL' && (
-              <div className="instruction-overlay">
-                Click to start drawing a wall. Right-click to stop.
-              </div>
-            )}
+
+            {state.activeTool && <div className="instruction-overlay">
+              {state.activeTool === 'WALL' && "Click to start drawing a wall segment. Click again to end."}
+              {state.activeTool === 'ROOM' && "Click to place room corner, move and click to finish square."}
+              {state.activeTool === 'CUSTOM_SHAPE' && "Click points to draw connected walls. Right-click to stop."}
+              {state.activeTool === 'FLOOR' && "Click points to define a custom floor shape. Right-click to close and finish."}
+              {state.activeTool === 'CHANGE_HEIGHT' && "Click on an existing wall to select it and update its height."}
+            </div>}
+          </div>
+
+          <div className="bottom-bar">
+            <div className="controls">
+              <span className="control-label">Drag scene</span>
+              <div className="toggle-switch"></div>
+              <span>— 100% +</span>
+              <span>⤢ cm</span>
+            </div>
           </div>
         </main>
       </div>
 
       <style>{`
-        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { margin: 0; overflow: hidden; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { margin: 0; overflow: hidden; background: #222; }
 
         .rd-root {
           display: flex;
-          height: calc(100vh - 70px);
-          margin-top: 70px;
-          background: #f2f2f2;
+          height: calc(100vh - 60px); 
+          margin-top: 60px; /* Assuming external header */
+          background: #fff;
         }
 
-        /* --- ICON BAR (Dark Left) --- */
+        /* --- ICON BAR --- */
         .rd-iconbar {
           width: 50px;
-          background: #2c2c2c;
+          background: #333;
           display: flex;
           flex-direction: column;
           align-items: center;
-          padding-top: 0;
+          padding-top: 15px;
           z-index: 20;
+          gap: 15px;
         }
 
-        .icon {
-          width: 50px;
-          height: 50px;
-          color: #888;
+        .user-icon {
+          width: 30px;
+          height: 30px;
+          background: #555;
+          border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 20px;
+          color: white;
+          font-size: 16px;
+          margin-bottom: 20px;
+        }
+
+        .action-icon {
+          width: 40px;
+          height: 40px;
+          color: #aaa;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           cursor: pointer;
+          border-radius: 6px;
           transition: all 0.2s;
-          border-left: 3px solid transparent;
         }
 
-        .icon:hover {
+        .action-icon:hover {
           color: #fff;
-          background: #3a3a3a;
         }
 
-        .icon.active {
-          color: #fff;
-          background: #3a3a3a;
-          border-left: 3px solid #8cc63f; /* Green highlight line */
+        .action-icon.active {
+          background: #8cc63f; /* Green highlight color */
+          color: white;
+          border-radius: 4px;
         }
 
-        .icon.spacer { flex: 1; pointer-events: none; }
-        .icon.search { border-top: 1px solid #444; }
-
-        /* --- TOOL PANEL (White) --- */
+        /* --- TOOL PANEL --- */
         .rd-tools {
-          width: 280px;
+          width: 250px;
           background: #fff;
-          border-right: 1px solid #ddd;
+          border-right: 1px solid #e0e0e0;
           display: flex;
           flex-direction: column;
           z-index: 10;
@@ -296,171 +404,134 @@ export default function ManualDesign() {
 
         /* Construction Panel Styles */
         .height-control {
-          padding: 15px;
+          padding: 20px 15px;
           border-bottom: 1px solid #eee;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          font-size: 14px;
+          font-size: 13px;
+          font-weight: 600;
           color: #333;
         }
 
-        .height-input-wrapper {
+        .height-input-controls {
           display: flex;
-          align-items: center;
-          background: #f5f5f5;
-          border-radius: 4px;
-          padding: 0 5px;
+          flex-direction: column;
         }
-
-        .height-input-wrapper input {
-          width: 50px;
+        .height-input-controls button {
+          background: none;
           border: none;
-          background: transparent;
-          text-align: right;
-          padding: 5px;
-          font-weight: bold;
-          outline: none;
-        }
-
-        .height-input-wrapper .unit {
-          font-size: 12px;
-          color: #888;
-          margin-left: 2px;
+          font-size: 10px;
+          cursor: pointer;
+          color: #666;
+          padding: 0;
+          line-height: 1;
         }
 
         .tool-item {
           display: flex;
           align-items: center;
-          padding: 12px 15px;
+          padding: 15px 20px;
           cursor: pointer;
-          border-bottom: 1px solid #f5f5f5;
           transition: background 0.2s;
         }
 
-        .tool-item:hover { background: #f9f9f9; }
-        .tool-item.active { background: #e6f7ff; }
+        .tool-item:hover { background: #fbfbfb; }
+        .tool-item.active { background: #f8ffe8; color: #8cc63f; } /* light green */
 
-        .tool-icon {
-          font-size: 24px;
-          width: 40px;
-          color: #666;
-        }
-
-        .tool-text {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-        }
-
-        .tool-text .title { font-size: 14px; color: #333; font-weight: 500; }
-        .tool-text .subtitle { font-size: 11px; color: #888; margin-top: 2px; }
-
-        .edit-icon { font-size: 12px; opacity: 0; color: #999; }
-        .tool-item:hover .edit-icon { opacity: 1; }
-
-        /* Furniture Panel Styles */
-        .furniture-categories { padding: 15px; }
-        .furniture-categories h3, .furniture-list h3 { margin: 0 0 15px 0; font-size: 16px; color: #333; }
-        
-        .search-box {
-          display: flex;
-          align-items: center;
-          background: #f0f0f0;
-          padding: 8px 12px;
-          border-radius: 20px;
-          margin-bottom: 20px;
-        }
-
-        .search-box input {
-          border: none;
-          background: transparent;
-          margin-left: 8px;
-          width: 100%;
-          outline: none;
-          font-size: 13px;
-        }
-
-        .category-item {
-          display: flex;
-          align-items: center;
-          padding: 10px 0;
-          border-bottom: 1px solid #eee;
-          cursor: pointer;
-        }
-
-        .category-item:hover { color: #8cc63f; }
-        .cat-icon { width: 30px; font-size: 18px; }
-        .cat-name { flex: 1; font-size: 14px; }
-        .arrow { color: #ccc; }
-
-        .panel-header {
-          display: flex;
-          align-items: center;
-          padding: 15px;
-          border-bottom: 1px solid #eee;
-          gap: 10px;
-        }
-
-        .back-btn {
-          background: none;
-          border: none;
-          font-size: 18px;
-          cursor: pointer;
-          color: #666;
-          padding: 0;
-        }
-
-        .items-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 10px;
-          padding: 15px;
-        }
-
-        .furniture-item {
-          background: #f9f9f9;
-          border: 1px solid #eee;
-          border-radius: 6px;
-          padding: 10px;
-          text-align: center;
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-
-        .furniture-item:hover {
-          border-color: #8cc63f;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .item-thumb {
-          height: 60px;
+        .tool-icon-img {
+          width: 30px;
+          height: 30px;
+          background: #f5f5f5;
+          border-radius: 4px;
           display: flex;
           align-items: center;
           justify-content: center;
-          margin-bottom: 8px;
+          margin-right: 15px;
         }
 
-        .item-thumb img {
-          max-width: 100%;
-          max-height: 100%;
-          opacity: 0.8;
+        .tool-text .title { font-size: 13px; font-weight: 500; color: #444; }
+        .tool-item.active .tool-text .title { color: #8cc63f; }
+        
+        .thickness-control {
+          padding: 20px;
+          border-top: 1px solid #eee;
+          font-size: 13px;
+          color: #444;
+          font-weight: 500;
+        }
+        
+        .thickness-slider {
+          width: 100%;
+          margin-top: 10px;
+          accent-color: #2874a6; /* Blue slider handle like screenshot */
         }
 
-        .furniture-item span {
-          display: block;
-          font-size: 12px;
-          color: #555;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
+        /* Furniture & Decor Panel */
+        .search-pane {
+           display: flex;
+           flex-direction: column;
         }
-
-        .placeholder-panel {
-          padding: 40px;
-          text-align: center;
-          color: #999;
-          font-style: italic;
+        .search-box {
+           padding: 15px;
+           border-bottom: 1px solid #eee;
+        }
+        .search-box input {
+           width: 100%;
+           border: 1px solid #ddd;
+           border-radius: 4px;
+           padding: 8px 10px;
+           font-size: 12px;
+           background: #fff;
+           outline: none;
+        }
+        
+        .products-catalog { display: flex; flex-direction: column; overflow-y: auto; }
+        .panel-header-top { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #eee; font-weight: 600; font-size: 13px; color: #333; }
+        .catalog-icon { margin-right: 10px; display: flex; align-items: center; }
+        .catalog-title { flex: 1; }
+        .catalog-settings { cursor: pointer; color: #888; display: flex; align-items: center; }
+        
+        .catalog-list { padding: 15px; display: flex; flex-direction: column; gap: 20px; }
+        .catalog-item { cursor: pointer; display: flex; flex-direction: column; border-bottom: 1px solid #f9f9f9; padding-bottom: 20px; transition: opacity 0.2s; }
+        .catalog-item:hover { opacity: 0.7; }
+        .cat-text { font-size: 11px; font-weight: 600; color: #333; margin-bottom: 15px; }
+        .cat-hero-img { width: 70%; max-height: 80px; object-fit: contain; margin: 0 auto; display: block; }
+        /* Grid layout for items */
+        .items-grid {
+          display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; overflow-y: auto;
+        }
+        .panel-header { padding: 15px; border-bottom: 1px solid #eee; }
+        .furniture-item {
+          display: flex; flex-direction: column; align-items: flex-start;
+          cursor: pointer; position: relative; border: 1px solid transparent; padding: 5px;
+        }
+        .furniture-item:hover { border-color: #eee; border-radius: 4px; }
+        .item-thumb {
+          width: 100%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+          margin-bottom: 10px; background: #fff;
+        }
+        .item-thumb img { max-width: 90%; max-height: 90%; object-fit: contain; }
+        .furniture-item span { font-size: 11px; font-weight: 500; color: #333; line-height: 1.2; text-transform: capitalize; }
+        .premium-lock {
+          position: absolute; top: 0; right: 0; font-size: 8px; font-weight: 700; background: #f5b041; color: #fff; padding: 3px 5px; border-radius: 3px; z-index: 2;
+        }
+        /* Materials */
+        .materials-pane { padding: 15px; }
+        .material-section { margin-bottom: 25px; }
+        .material-section h4 { margin: 0 0 10px 0; font-size: 13px; font-weight: 600; color: #333; }
+        .section-head { display: flex; align-items: center; margin-bottom: 10px; }
+        .section-head h4 { margin: 0; }
+        .color-grid {
+          display: grid;
+          grid-template-columns: repeat(5, 1fr);
+          gap: 8px;
+        }
+        .color-box {
+           aspect-ratio: 1.5;
+           border-radius: 2px;
+           cursor: pointer;
+           box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05);
         }
 
         /* --- CANVAS AREA --- */
@@ -472,47 +543,52 @@ export default function ManualDesign() {
         }
 
         .topbar {
-          height: 40px;
+          height: 50px;
           background: #fff;
-          border-bottom: 1px solid #ddd;
+          border-bottom: 1px solid #eee;
           display: flex;
           align-items: center;
-          padding: 0 15px;
+          padding: 0 20px;
           font-size: 13px;
-          color: #666;
+          color: #555;
         }
+
+        .app-title { font-weight: 700; color: #333; letter-spacing: 1px; }
+        .middle-space { flex: 1; }
 
         .upgrade {
-          background: #ffcc00;
+          background: #f5b041;
           border: none;
-          padding: 4px 12px;
-          border-radius: 3px;
-          font-weight: bold;
-          font-size: 12px;
-          cursor: pointer;
-          color: #333;
-        }
-
-        .divider { width: 1px; height: 20px; background: #eee; margin: 0 15px; }
-        .lang { margin-right: 15px; font-weight: 500; color: #333; cursor: pointer; }
-        .project { flex: 1; color: #333; font-weight: 500; }
-
-        .actions { display: flex; gap: 5px; }
-        .actions button {
-          background: none;
-          border: none;
-          font-size: 16px;
-          cursor: pointer;
-          padding: 4px 8px;
+          padding: 6px 14px;
           border-radius: 4px;
+          font-weight: bold;
+          font-size: 11px;
+          cursor: pointer;
+          color: #fff;
+          margin-right: 15px;
         }
-        .actions button:hover { background: #f0f0f0; }
+
+        .lang { margin-right: 15px; color: #555; }
+        .project { color: #888; margin-right: 20px; }
+        
+        .actions { display: flex; gap: 10px; }
+        .header-action { background: none; border: none; font-size: 16px; cursor: pointer; color: #666; opacity: 0.7; }
+        .header-action:hover { opacity: 1; }
 
         .workspace {
           flex: 1;
-          background: #fff; /* White blueprint background */
+          background: #fff;
           position: relative;
           overflow: hidden;
+          background-image:
+            linear-gradient(rgba(240, 240, 240, 1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(240, 240, 240, 1) 1px, transparent 1px);
+          background-size: 50px 50px;
+        }
+
+        .workspace > canvas {
+          position: relative;
+          z-index: 1;
         }
 
         .instruction-overlay {
@@ -520,14 +596,37 @@ export default function ManualDesign() {
           top: 20px;
           left: 50%;
           transform: translateX(-50%);
-          background: rgba(44, 44, 44, 0.9);
+          background: rgba(0, 0, 0, 0.7);
           color: white;
           padding: 8px 16px;
-          border-radius: 4px;
+          border-radius: 20px;
           pointer-events: none;
           z-index: 100;
           font-size: 13px;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .bottom-bar {
+           position: absolute;
+           bottom: 20px;
+           right: 20px;
+           background: #fff;
+           padding: 8px 16px;
+           border-radius: 20px;
+           box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+           border: 1px solid #eee;
+           z-index: 10;
+        }
+        
+        .controls {
+           display: flex;
+           align-items: center;
+           gap: 12px;
+           font-size: 12px;
+           color: #666;
+        }
+        
+        .toggle-switch {
+           width: 30px; height: 16px; background: #ddd; border-radius: 10px;
         }
       `}</style>
     </>

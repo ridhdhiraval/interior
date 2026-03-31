@@ -407,11 +407,9 @@ const Pricing = () => {
             </div>
             <div className="feature-name">
               Initial catalog of products and materials
-              <img src="/finishing-materials.png" alt="" className="feature-img" />
             </div>
             <div className="feature-name">
               Advanced catalog of products and materials
-              <img src="/furniture-decor.png" alt="" className="feature-img" />
             </div>
             <div className="feature-name">Products for commercial spaces</div>
             <div className="feature-name">Baseboard editor</div>

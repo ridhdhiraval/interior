@@ -143,7 +143,7 @@ export default function AIWorkflow() {
           {/* LEFT */}
           <div className="ai-visual">
             <img
-              src="/ai-room-ui.png"  // put image in public folder
+              src="/ai-room-ui.png"  // file exists in public folder, replace with ai-room-ui.png when available
               alt="AI Room Designer"
             />
           </div>

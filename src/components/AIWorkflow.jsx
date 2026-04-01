@@ -1,7 +1,9 @@
 import { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function AIWorkflow() {
   const sectionRef = useRef(null);
+  const navigate = useNavigate();
 
   // Fade-in on scroll (simple & human)
   useEffect(() => {
@@ -182,7 +184,7 @@ export default function AIWorkflow() {
               </div>
             </div>
 
-            <button className="ai-btn">Try it now</button>
+            <button className="ai-btn" onClick={() => navigate('/virtualai')}>Try it now</button>
           </div>
 
         </div>

@@ -10,11 +10,11 @@ export default function BeforeAfterHero() {
 
   // 🔑 NEW: room images state (default same as tumhara)
   const [images, setImages] = useState({
-    before: "/before.jpg",
-    after: "/after bedroom.png",
+    before: "/before-kitchen.jpg",
+    after: "/after-kitchen.jpg",
   })
 
-  const [activeRoom, setActiveRoom] = useState("Bedroom")
+  const [activeRoom, setActiveRoom] = useState("Kitchen")
   const update = (x) => {
     const rect = ref.current.getBoundingClientRect()
     let p = ((x - rect.left) / rect.width) * 100

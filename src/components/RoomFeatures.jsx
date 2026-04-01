@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 /*
   RoomFeatures Component
@@ -8,6 +9,7 @@ import React from "react";
 */
 
 export default function RoomFeatures() {
+  const navigate = useNavigate();
   return (
     <>
       {/* ================= INLINE CSS ================= */}
@@ -158,7 +160,7 @@ export default function RoomFeatures() {
               Customize rooms, adjust wall sizes, and experiment with
               different layouts to match your living style.
             </p>
-            <a href="#">Turn your blueprint into a 3D design →</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); navigate('/manual-design'); }}>Turn your blueprint into a 3D design →</a>
           </div>
           <div className="feature-image">
             <img src="/floor-plan-2.png" alt="2D home layout" />

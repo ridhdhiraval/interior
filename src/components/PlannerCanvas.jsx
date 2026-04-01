@@ -103,22 +103,109 @@ const Floor = ({ points, color = "#e0e0e0", isPreview = false }) => {
 };
 
 // --- Furniture Component ---
-const Furniture = ({ item, x, z, rotation = 0, isPreview = false }) => {
-  const widthM = item.width / 100;
-  const depthM = item.depth / 100;
+const Furniture = ({ instance, isPreview = false }) => {
+  const { item, x, z, rotation = 0, id } = instance;
+  const { state, actions } = usePlanner();
   
+  const [texture, setTexture] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState(null);
+  
+  React.useEffect(() => {
+    if (item.image) {
+      // Fix relative path for correct resolution on secondary routes
+      const url = item.image.startsWith('./') ? item.image.substring(1) : item.image;
+      new THREE.TextureLoader().load(url, (tex) => {
+        tex.colorSpace = THREE.SRGBColorSpace;
+        setTexture(tex);
+      }, undefined, (err) => {
+        console.error('Error loading texture:', err);
+      });
+    }
+  }, [item.image]);
+
+  let widthM = (item.width || 100) / 100;
+  let depthM = (item.depth || 100) / 100;
+  
+  if (texture && (!item.width || !item.depth)) {
+    const aspect = texture.image.width / texture.image.height;
+    if (aspect > 1) {
+      widthM = aspect * 1.2;
+      depthM = 1.2;
+    } else {
+      depthM = 1.2;
+      widthM = aspect * 1.2;
+    }
+  }
+
+  const handlePointerDown = (e) => {
+    if (isPreview || state.activeTool || state.placingFurniture) return;
+    e.stopPropagation();
+    setIsDragging(true);
+    setDragStart({ x: e.point.x - x, z: e.point.z - z });
+    e.target.setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e) => {
+    if (!isDragging || !dragStart) return;
+    e.stopPropagation();
+    const newX = e.point.x - dragStart.x;
+    const newZ = e.point.z - dragStart.z;
+    actions.updateFurniture(id, { x: newX, z: newZ });
+  };
+
+  const handlePointerUp = (e) => {
+    if (!isDragging) return;
+    e.stopPropagation();
+    setIsDragging(false);
+    setDragStart(null);
+    e.target.releasePointerCapture(e.pointerId);
+  };
+
+  const handleContextMenu = (e) => {
+    if (isPreview || state.activeTool || state.placingFurniture) return;
+    e.stopPropagation();
+    actions.updateFurniture(id, { rotation: rotation + Math.PI / 8 }); // Rotate 22.5 deg per right-click
+  };
+
   return (
-    <group position={[x, 0, z]} rotation={[0, rotation, 0]}>
+    <group 
+      position={[x, 0, z]} 
+      rotation={[0, rotation, 0]}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
+      onContextMenu={handleContextMenu}
+      onClick={(e) => {
+        if (!isPreview && !state.placingFurniture && !state.activeTool) {
+           e.stopPropagation();
+        }
+      }}
+    >
       {/* Furniture Body */}
-      <mesh position={[0, 0.5, 0]}> {/* Lift slightly above floor */}
-        <boxGeometry args={[widthM, 0.1, depthM]} />
-        <meshBasicMaterial color={item.color || "#888"} transparent opacity={isPreview ? 0.6 : 1} />
-        <Edges color="#333" />
-      </mesh>
+      {texture ? (
+        <mesh position={[0, 0.5, 0]} rotation={[-Math.PI/2, 0, 0]}>
+          <planeGeometry args={[widthM, depthM]} />
+          <meshBasicMaterial 
+            map={texture} 
+            transparent={true} 
+            opacity={isPreview ? 0.6 : 1} 
+            side={THREE.DoubleSide} 
+            depthWrite={false} 
+          />
+        </mesh>
+      ) : (
+        <mesh position={[0, 0.5, 0]}>
+          <boxGeometry args={[widthM, 0.1, depthM]} />
+          <meshBasicMaterial color={item.color || "#ccc"} transparent opacity={isPreview ? 0.6 : 1} />
+          <Edges color="#333" />
+        </mesh>
+      )}
       
       {/* Direction Indicator */}
       <mesh position={[0, 0.51, -depthM/2 + 0.1]} rotation={[-Math.PI/2, 0, 0]}>
-        <circleGeometry args={[0.1, 3]} />
+        <circleGeometry args={[0.05, 3]} />
         <meshBasicMaterial color="#333" />
       </mesh>
     </group>
@@ -269,9 +356,7 @@ const InteractionPlane = () => {
       {/* Ghost Furniture Preview */}
       {state.placingFurniture && hoverPoint && (
         <Furniture 
-          item={state.placingFurniture} 
-          x={hoverPoint[0]} 
-          z={hoverPoint[2]} 
+          instance={{ item: state.placingFurniture, x: hoverPoint[0], z: hoverPoint[2], rotation: 0, id: 'preview' }}
           isPreview={true} 
         />
       )}
@@ -356,10 +441,7 @@ export default function PlannerCanvas() {
       {state.furniture.map((f) => (
         <Furniture 
           key={f.id} 
-          item={f.item || f}
-          x={f.x} 
-          z={f.z} 
-          rotation={f.rotation} 
+          instance={{...f, item: f.item || f}}
         />
       ))}
 

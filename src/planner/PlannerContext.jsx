@@ -88,6 +88,9 @@ export const PlannerProvider = ({ children }) => {
     },
     removeFurniture: (id) => {
       setFurniture(prev => prev.filter(f => f.id !== id));
+    },
+    updateFurniture: (id, updates) => {
+      setFurniture(prev => prev.map(f => f.id === id ? { ...f, ...updates } : f));
     }
   };
 

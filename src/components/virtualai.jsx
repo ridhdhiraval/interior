@@ -32,6 +32,10 @@ export default function VirtualAI() {
   const [style, setStyle] = useState("Contemporary");
   const [color, setColor] = useState("Neutral");
 
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedImage, setGeneratedImage] = useState(null);
+  const [errorText, setErrorText] = useState("");
+
   useEffect(() => {
     const onScroll = () => setScrollY(window.scrollY);
     window.addEventListener("scroll", onScroll);
@@ -58,6 +62,76 @@ Style: ${style}
 Color: ${color}
 Changes: ${fullPrompt.join(", ")}
   `.trim();
+
+  const handleGenerate = async () => {
+    if (!image) {
+      setErrorText("Please upload a room photo first!");
+      return;
+    }
+    setIsGenerating(true);
+    setErrorText("");
+    setGeneratedImage(null);
+
+    try {
+      const MISTRAL_API_KEY = "ANEg145zYTOLEUf65r2tVQhSQRemifNk";
+      const systemPrompt = `You are an expert interior designer AI. I am providing you with an image of a room. Based on the following parameters: 
+Room Type: ${room}
+Style: ${style}
+Color Scheme: ${color}
+User Specific Redesign Instructions: ${fullPrompt.join(", ") || "None"}
+
+Please text output ONLY a highly detailed, descriptive text prompt for an AI image generator (like Midjourney/Pollinations) that will redesign the given room according to these parameters. Focus heavily on lighting, textures, photorealism, and the specific style/colors requested. Keep the original room spatial layout in mind but radically transform its design. Do not include any other conversational text except the generation prompt itself.`;
+
+      const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${MISTRAL_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: "pixtral-12b-2409",
+          messages: [
+            {
+              role: "user",
+              content: [
+                { type: "text", text: systemPrompt },
+                { type: "image_url", image_url: { url: image } }
+              ]
+            }
+          ]
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error?.message || "Failed to generate design prompt using Mistral");
+      }
+
+      let generatedPrompt = data.choices[0].message.content.trim();
+
+      console.log("Mistral Raw:", generatedPrompt);
+      // Clean up markdown block quotes or extra newlines Mistral might output
+      generatedPrompt = generatedPrompt.replace(/```[a-z]*/gi, '').replace(/```/g, '');
+      generatedPrompt = generatedPrompt.replace(/\n/g, ' ').replace(/\r/g, '').replace(/"/g, '').trim();
+
+      // Enforce URL length safety
+      if (generatedPrompt.length > 800) {
+        generatedPrompt = generatedPrompt.substring(0, 800);
+      }
+      console.log("Mistral Cleaned:", generatedPrompt);
+
+      const seed = Math.floor(Math.random() * 100000);
+      const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(generatedPrompt)}?width=1024&height=768&seed=${seed}`;
+
+      // Directly setting the image URL ignores JS fetch blocking so the browser loads it properly natively.
+      setGeneratedImage(pollinationsUrl);
+    } catch (error) {
+      console.error("Generation Error:", error);
+      setErrorText(error.message || "An error occurred during generation.");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   return (
     <>
@@ -203,6 +277,98 @@ Changes: ${fullPrompt.join(", ")}
           cursor: pointer;
         }
 
+        .error-message {
+          color: #dc2626;
+          background: #fee2e2;
+          padding: 12px;
+          border-radius: 12px;
+          margin-top: 15px;
+          font-weight: 500;
+          font-size: 14px;
+          text-align: center;
+        }
+
+        .generation-loading {
+          text-align: center;
+          padding: 40px;
+          background: rgba(255,255,255,0.9);
+          border-radius: 20px;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+          margin-top: 20px;
+        }
+
+        .spinner {
+          border: 4px solid rgba(219, 39, 119, 0.2);
+          border-left-color: #db2777;
+          border-radius: 50%;
+          width: 50px;
+          height: 50px;
+          animation: spin 1s linear infinite;
+          margin: 0 auto 20px;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .before-after-container {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+          margin-top: 20px;
+          height: 100%;
+          justify-content: center;
+        }
+
+        .image-box {
+          position: relative;
+          border-radius: 20px;
+          overflow: hidden;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+          background: #000;
+        }
+
+        .preview-img {
+          width: 100%;
+          height: auto;
+          display: block;
+          max-height: 400px;
+          object-fit: cover;
+        }
+
+        .badge {
+          position: absolute;
+          top: 15px;
+          left: 15px;
+          background: rgba(0,0,0,0.7);
+          color: #fff;
+          padding: 6px 14px;
+          border-radius: 20px;
+          font-weight: 600;
+          font-size: 14px;
+          backdrop-filter: blur(4px);
+          z-index: 10;
+        }
+
+        .download-btn {
+          position: absolute;
+          bottom: 15px;
+          right: 15px;
+          background: #db2777;
+          color: #fff;
+          padding: 8px 16px;
+          border-radius: 20px;
+          text-decoration: none;
+          font-weight: 600;
+          font-size: 13px;
+          transition: 0.2s;
+          cursor: pointer;
+          border: none;
+          z-index: 10;
+        }
+
+        .download-btn:hover {
+          background: #be185d;
+        }
+
         @media(max-width: 900px){
           .ba-wrapper { grid-template-columns: 1fr; }
         }
@@ -210,10 +376,51 @@ Changes: ${fullPrompt.join(", ")}
 
       <section className="ba-wrapper">
         <div className="ba-hero">
-          <h1>
-            My <span style={{ color: "#db2777" }}>AI Room Designer</span><br />
-            Design Your Dream Space
-          </h1>
+          {!generatedImage && !isGenerating && !image && (
+            <h1>
+              My <span style={{ color: "#db2777" }}>AI Room Designer</span><br />
+              Design Your Dream Space
+            </h1>
+          )}
+
+          {isGenerating && (
+            <div className="generation-loading">
+              <div className="spinner"></div>
+              <h3 style={{ color: '#111827', margin: '0 0 10px 0' }}>AI is designing your room...</h3>
+              <p style={{ color: '#6b7280', margin: 0 }}>Analyzing with Mistral Vision & Generating Image.</p>
+            </div>
+          )}
+
+          {(generatedImage || (!isGenerating && image)) && (
+            <div className="before-after-container">
+              {/* BEFORE IMAGE */}
+              <div className="image-box">
+                <img src={image} alt="Before" className="preview-img" />
+                <span className="badge">Before</span>
+              </div>
+
+              {/* AFTER IMAGE */}
+              {generatedImage && (
+                <div className="image-box">
+                  <img src={generatedImage} alt="After" className="preview-img" crossOrigin="anonymous" referrerPolicy="no-referrer" />
+                  <span className="badge">After (AI Design)</span>
+                  <button
+                    onClick={() => {
+                      const link = document.createElement('a');
+                      link.href = generatedImage;
+                      link.download = 'ai-room-design.jpg';
+                      link.target = '_blank';
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                    }}
+                    className="download-btn">
+                    Download High Res
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="ba-panel">
@@ -224,7 +431,7 @@ Changes: ${fullPrompt.join(", ")}
 
           <div className="label">Room type</div>
           <div className="rooms">
-            {["Living Room","Bedroom","Kitchen","Bathroom"].map(r => (
+            {["Living Room", "Bedroom", "Kitchen", "Bathroom"].map(r => (
               <div
                 key={r}
                 className={`room-pill ${room === r ? "active" : ""}`}
@@ -308,7 +515,10 @@ Changes: ${fullPrompt.join(", ")}
           <div className="label">Final Prompt</div>
           <textarea value={promptText} readOnly />
 
-          <div className="generate">Generate Design ✨</div>
+          <div className="generate" onClick={handleGenerate}>
+            {isGenerating ? "Generating..." : "Generate Design ✨"}
+          </div>
+          {errorText && <div className="error-message">{errorText}</div>}
         </div>
       </section>
     </>

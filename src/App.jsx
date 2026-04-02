@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import Navbar from "./components/Navbar"
 import BeforeAfterHero from "./components/BeforeAfter"
 import VirtualAI from "./components/virtualai"
@@ -18,9 +18,12 @@ import Settings from "./components/Settings"
 import AdminApp from "./admin/AdminApp"
 
 export default function App() {
+  const location = useLocation()
+  const isAdminRoute = location.pathname.startsWith('/admin')
+
   return (
     <>
-      <Navbar />
+      {!isAdminRoute && <Navbar />}
 
       <Routes>
         {/* Website */}
@@ -48,7 +51,7 @@ export default function App() {
         {/* 🔐 ADMIN ROUTE */}
         <Route path="/admin/*" element={<AdminApp />} />
       </Routes>
-      <Footer />
+      {!isAdminRoute && <Footer />}
     </>
   )
 }

@@ -12,6 +12,7 @@ import ContactUs from "./components/ContactUs"
 import About from "./components/About"
 import SignIn from "./components/SignIn"
 import Payment from "./components/Payment"
+import Settings from "./components/Settings"
 
 // ✅ ADMIN APP
 import AdminApp from "./admin/AdminApp"
@@ -42,6 +43,7 @@ export default function App() {
         <Route path="/contact" element={<ContactUs />} />
         <Route path="/about" element={<About />} />
         <Route path="/signin" element={<SignIn />} />
+        <Route path="/settings" element={<Settings />} />
 
         {/* 🔐 ADMIN ROUTE */}
         <Route path="/admin/*" element={<AdminApp />} />

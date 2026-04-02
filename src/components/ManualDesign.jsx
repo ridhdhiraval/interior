@@ -8,12 +8,14 @@ import {
   catalogSubCategories,
   catalogItems
 } from "../planner/furnitureData";
+import ProfilePage from "./ProfilePage";
 
 export default function ManualDesign() {
   const { state, actions } = usePlanner();
   const [activeTab, setActiveTab] = useState('CONSTRUCTION'); // CONSTRUCTION, FURNITURE, DECOR, HUMAN, SEARCH
   // Array representing hierarchical path of catalogs (e.g. ['living', 'upholstered'])
   const [catalogPath, setCatalogPath] = useState([]); 
+  const [showProfile, setShowProfile] = useState(false);
 
   const handleToolClick = (tool) => {
     actions.setTool(tool === state.activeTool ? null : tool);
@@ -251,7 +253,16 @@ export default function ManualDesign() {
       <div className="rd-root">
         {/* LEFT ICON BAR */}
         <aside className="rd-iconbar">
-          <div className="user-icon">👤</div>
+          <div 
+            className="user-icon" 
+            onClick={() => setShowProfile(true)} 
+            style={{ cursor: 'pointer', transition: 'transform 0.2s' }}
+            onMouseEnter={(e) => e.target.style.transform='scale(1.1)'} 
+            onMouseLeave={(e) => e.target.style.transform='scale(1)'}
+            title="User Profile"
+          >
+            👤
+          </div>
 
           <div
             className={`action-icon ${activeTab === 'CONSTRUCTION' ? 'active' : ''}`}
@@ -332,6 +343,8 @@ export default function ManualDesign() {
           </div>
         </main>
       </div>
+
+      {showProfile && <ProfilePage onClose={() => setShowProfile(false)} />}
 
       <style>{`
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }

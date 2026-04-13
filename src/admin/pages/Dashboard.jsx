@@ -1,6 +1,30 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
 
 export default function Dashboard() {
+  const [stats, setStats] = useState({ users: 0, orders: 0, revenue: 0 })
+  const [users, setUsers] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem('token')
+        const [statsRes, usersRes] = await Promise.all([
+          axios.get('http://localhost:5001/api/admin/analytics', { headers: { 'x-auth-token': token } }),
+          axios.get('http://localhost:5001/api/admin/users', { headers: { 'x-auth-token': token } })
+        ])
+        setStats(statsRes.data)
+        setUsers(usersRes.data)
+      } catch (err) {
+        console.error('Failed to fetch data', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData()
+  }, [])
+
   return (
     <div className="admin-dashboard">
       <style>{`
@@ -21,47 +45,40 @@ export default function Dashboard() {
       `}</style>
 
       <div className="grid">
-        <MetricCard title="Active Users" value="1,248" trend="+4.8%" />
-        <MetricCard title="Monthly Revenue" value="$5,230" trend="+3.1%" />
-        <MetricCard title="New Orders" value="86" trend="+1.7%" />
-        <MetricCard title="Refund Rate" value="0.8%" trend="-0.2%" />
+        <MetricCard title="Total Users" value={loading ? '...' : stats.users} trend="+100%" />
+        <MetricCard title="Total Revenue" value={loading ? '...' : `$${stats.revenue}`} trend="+100%" />
+        <MetricCard title="Total Orders" value={loading ? '...' : stats.orders} trend="+100%" />
+        <MetricCard title="Conversion Rate" value="100%" trend="Stable" />
       </div>
 
       <div className="panel">
         <div className="chart">
           <h4>Revenue (last 30d)</h4>
-          <svg width="100%" height="220">
-            <polyline
-              fill="none"
-              stroke="#7cc4ff"
-              strokeWidth="3"
-              points="10,180 60,150 110,160 160,130 210,120 260,140 310,110 360,100 410,120 460,90"
-            />
-          </svg>
+          <div style={{ height: '220px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fbff', borderRadius: '10px' }}>
+            <p style={{ opacity: 0.6 }}>Revenue chart will appear here</p>
+          </div>
         </div>
         <div className="list">
           <table>
             <thead>
               <tr>
                 <th>User</th>
-                <th>Plan</th>
-                <th>Status</th>
+                <th>Email</th>
                 <th>Joined</th>
               </tr>
             </thead>
             <tbody>
-              {[
-                { user: 'Aman Gupta', plan: 'PRO', status: 'Active', joined: '2026-02-10' },
-                { user: 'Sara Lee', plan: 'STANDARD', status: 'Active', joined: '2026-02-12' },
-                { user: 'John Park', plan: 'FREE', status: 'Pending', joined: '2026-02-14' },
-              ].map((row, i) => (
-                <tr key={i}>
-                  <td>{row.user}</td>
-                  <td>{row.plan}</td>
-                  <td>{row.status}</td>
-                  <td>{row.joined}</td>
-                </tr>
-              ))}
+              {loading ? (
+                <tr><td colSpan="3">Loading...</td></tr>
+              ) : (
+                users.slice(0, 5).map((user) => (
+                  <tr key={user.id}>
+                    <td>{user.name}</td>
+                    <td>{user.email}</td>
+                    <td>{new Date(user.created_at).toLocaleDateString()}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

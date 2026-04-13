@@ -1,129 +1,151 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
 
 export default function Notifications() {
-  const [items, setItems] = useState(() => {
-    const saved = localStorage.getItem('adminNotifications')
-    return saved ? JSON.parse(saved) : [
-      { id: 1, text: 'New user signed up: Aman Gupta', read: false },
-      { id: 2, text: 'Monthly revenue crossed $5k', read: false },
-      { id: 3, text: 'Order ORD-1025 marked as Paid', read: true },
-    ]
-  })
-  const [compose, setCompose] = useState({ to: 'ALL', userId: '', message: '' })
+  const [notifications, setNotifications] = useState([])
+  const [users, setUsers] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [notifyData, setNotifyData] = useState({ userId: 'all', text: '' })
+  const [sending, setSending] = useState(false)
 
-  const markRead = (id) => setItems(items.map(i => i.id === id ? { ...i, read: true } : i))
-  const clearAll = () => { setItems([]); localStorage.setItem('adminNotifications', JSON.stringify([])) }
-  useEffect(() => { localStorage.setItem('adminNotifications', JSON.stringify(items)) }, [items])
+  useEffect(() => {
+    fetchData()
+  }, [])
 
-  const users = [
-    { id: 1, name: 'Aman Gupta' },
-    { id: 2, name: 'Sara Lee' },
-    { id: 3, name: 'John Park' },
-    { id: 4, name: 'Ravi Kumar' },
-    { id: 5, name: 'Neha Singh' },
-  ]
-
-  const send = () => {
-    const msg = compose.message.trim()
-    if (!msg) return
-    if (compose.to === 'ALL') {
-      const broadcast = { id: Date.now(), text: msg, read: false, scope: 'ALL' }
-      setItems([broadcast, ...items])
-      const saved = JSON.parse(localStorage.getItem('userNotifications') || '{}')
-      saved.broadcast = [...(saved.broadcast || []), { ts: Date.now(), text: msg }]
-      localStorage.setItem('userNotifications', JSON.stringify(saved))
-    } else {
-      const target = users.find(u => String(u.id) === String(compose.userId))
-      if (!target) return
-      const saved = JSON.parse(localStorage.getItem('userNotifications') || '{}')
-      saved.perUser = saved.perUser || {}
-      saved.perUser[target.id] = [...(saved.perUser[target.id] || []), { ts: Date.now(), text: msg }]
-      localStorage.setItem('userNotifications', JSON.stringify(saved))
-      setItems([{ id: Date.now(), text: `To ${target.name}: ${msg}`, read: false, scope: 'USER' }, ...items])
+  const fetchData = async () => {
+    try {
+      const token = localStorage.getItem('token')
+      const [notifRes, usersRes] = await Promise.all([
+        axios.get('http://localhost:5001/api/admin/notifications', {
+          headers: { 'x-auth-token': token }
+        }),
+        axios.get('http://localhost:5001/api/admin/users', {
+          headers: { 'x-auth-token': token }
+        })
+      ])
+      setNotifications(notifRes.data)
+      setUsers(usersRes.data)
+    } catch (err) {
+      console.error('Failed to fetch notifications', err)
+    } finally {
+      setLoading(false)
     }
-    setCompose({ to: 'ALL', userId: '', message: '' })
   }
+
+  const markRead = async (id) => {
+    try {
+      const token = localStorage.getItem('token')
+      await axios.put(`http://localhost:5001/api/admin/notifications/${id}`, {}, {
+        headers: { 'x-auth-token': token }
+      })
+      setNotifications(notifications.map(n => n.id === id ? { ...n, is_read: true } : n))
+    } catch (err) {
+      alert('Failed to update notification')
+    }
+  }
+
+  const handleNotify = async () => {
+    if (!notifyData.text) return
+    setSending(true)
+    try {
+      const token = localStorage.getItem('token')
+      await axios.post('http://localhost:5001/api/admin/notify-user', notifyData, {
+        headers: { 'x-auth-token': token }
+      })
+      alert('Notification sent to user(s)!')
+      setNotifyData({ ...notifyData, text: '' })
+    } catch (err) {
+      alert('Failed to send notification')
+    } finally {
+      setSending(false)
+    }
+  }
+
+  if (loading) return <div style={{ padding: '40px', textAlign: 'center' }}>Loading Notifications...</div>
 
   return (
     <div className="admin-notifications">
       <style>{`
-        .panel { border: 1px solid rgba(0,40,80,0.15); border-radius: 12px; background: #ffffff; color: #0b2a4a; box-shadow: 0 6px 20px rgba(11,42,74,0.08); }
-        .top {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 14px 16px;
-          border-bottom: 1px solid rgba(0,40,80,0.15);
+        .notif-card { background: #ffffff; border: 1px solid rgba(0,40,80,0.1); border-radius: 20px; padding: 24px; box-shadow: 0 4px 12px rgba(11,42,74,0.05); margin-bottom: 24px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .card-header h3 { margin: 0; font-size: 18px; font-weight: 700; color: #0f172a; }
+        
+        .notify-form { display: grid; grid-template-columns: 200px 1fr 120px; gap: 12px; margin-bottom: 30px; }
+        .notify-form select, .notify-form input { 
+          padding: 10px 14px; border-radius: 10px; border: 1px solid #e2e8f0; font-size: 14px; outline: none; 
         }
-        .top-title { font-size: 18px; font-weight: 700; color: #0e3a63; }
-        .compose {
-          padding: 14px 16px;
-          border-bottom: 1px solid rgba(0,40,80,0.08);
+        .btn-notify { background: #0b2a4a; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
+        
+        .notif-list { display: grid; gap: 12px; }
+        .notif-item { 
+          display: flex; justify-content: space-between; align-items: center; 
+          padding: 16px 20px; border-radius: 14px; border: 1px solid #f1f5f9; background: #fff;
+          transition: transform 0.2s;
         }
-        .compose-row { display: grid; grid-template-columns: 160px 1fr 120px; gap: 10px; margin-top: 8px; }
-        .label { font-size: 12px; opacity: 0.8; margin-bottom: 4px; }
-        .select, .input { padding: 8px 10px; border-radius: 10px; border: 1px solid rgba(0,40,80,0.2); background: #f5f8fb; color: #0b2a4a; font-size: 12px; }
-        .input-message { min-height: 36px; }
-        .list {
-          padding: 8px 16px 14px;
+        .notif-item.unread { border-left: 4px solid #0b2a4a; background: #f8fbff; }
+        .notif-content { flex: 1; }
+        .notif-msg { display: block; font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 4px; }
+        .notif-time { font-size: 12px; color: #94a3b8; }
+        
+        .btn-read { 
+          background: #f1f5f9; color: #64748b; border: none; padding: 6px 14px; border-radius: 8px; 
+          font-size: 12px; font-weight: 600; cursor: pointer; 
         }
-        .item {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          gap: 12px;
-          padding: 10px 12px;
-          border-radius: 10px;
-        }
-        .item:hover {
-          background: #f8fbff;
-        }
-        .btn { padding: 8px 14px; border-radius: 8px; font-size: 12px; border: 1px solid rgba(0,40,80,0.2); background: #0b2a4a; color: #ffffff; cursor: pointer; }
-        .btn-secondary { background: #ffffff; color: #0b2a4a; }
-        .badge {
-          font-size: 12px; padding: 4px 8px; border-radius: 8px; background: #e2efff; border: 1px solid rgba(0,40,80,0.25); color: #0b2a4a;
+        .btn-read:hover { background: #e2e8f0; }
+        
+        .badge-new { 
+          background: #eff6ff; color: #2563eb; font-size: 10px; font-weight: 700; 
+          padding: 2px 6px; border-radius: 4px; margin-right: 8px; vertical-align: middle;
         }
       `}</style>
-      <div className="panel">
-        <div className="top">
-          <div className="top-title">Notifications</div>
-          <button className="btn btn-secondary" onClick={clearAll}>Clear all</button>
+
+      <div className="notif-card">
+        <div className="card-header">
+          <h3>Send Notification</h3>
         </div>
-        <div className="compose">
-          <div className="label">Who to notify</div>
-          <div className="compose-row">
-            <select className="select" value={compose.to} onChange={(e) => setCompose({ ...compose, to: e.target.value })}>
-              <option value="ALL">All users</option>
-              <option value="USER">Single user</option>
-            </select>
-            {compose.to === 'USER' ? (
-              <select className="select" value={compose.userId} onChange={(e) => setCompose({ ...compose, userId: e.target.value })}>
-                <option value="">Select user</option>
-                {users.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
-              </select>
-            ) : (
-              <input className="input input-message" placeholder="Notification text" value={compose.message} onChange={(e) => setCompose({ ...compose, message: e.target.value })} />
-            )}
-            <button className="btn" onClick={send}>Notify</button>
-          </div>
-          {compose.to === 'USER' && (
-            <div style={{ marginTop: 10 }}>
-              <div className="label">Notification text</div>
-              <input className="input input-message" placeholder="Write a message" value={compose.message} onChange={(e) => setCompose({ ...compose, message: e.target.value })} />
-            </div>
-          )}
+        <div className="notify-form">
+          <select 
+            value={notifyData.userId} 
+            onChange={e => setNotifyData({...notifyData, userId: e.target.value})}
+          >
+            <option value="all">All Users</option>
+            {users.map(u => (
+              <option key={u.id} value={u.id}>{u.name}</option>
+            ))}
+          </select>
+          <input 
+            type="text" 
+            placeholder="Type notification message here..." 
+            value={notifyData.text}
+            onChange={e => setNotifyData({...notifyData, text: e.target.value})}
+          />
+          <button className="btn-notify" onClick={handleNotify} disabled={sending}>
+            {sending ? 'Sending...' : 'Notify'}
+          </button>
         </div>
-        <div className="list">
-          {items.length === 0 && <div style={{ padding: 12, opacity: 0.7 }}>No notifications</div>}
-          {items.map(i => (
-            <div key={i.id} className="item">
-              <div>
-                <div>{i.text}</div>
-                {!i.read && <span className="badge">New</span>}
+
+        <div className="card-header">
+          <h3>Recent Admin Alerts</h3>
+        </div>
+        <div className="notif-list">
+          {notifications.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '20px', color: '#64748b' }}>No notifications found</div>
+          ) : (
+            notifications.map(n => (
+              <div key={n.id} className={`notif-item ${!n.is_read ? 'unread' : ''}`}>
+                <div className="notif-content">
+                  <span className="notif-msg">
+                    {!n.is_read && <span className="badge-new">NEW</span>}
+                    {n.message}
+                  </span>
+                  <span className="notif-time">{new Date(n.created_at).toLocaleString()}</span>
+                </div>
+                {!n.is_read && (
+                  <button className="btn-read" onClick={() => markRead(n.id)}>Mark Read</button>
+                )}
               </div>
-              {!i.read && <button className="btn" onClick={() => markRead(i.id)}>Mark Read</button>}
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>

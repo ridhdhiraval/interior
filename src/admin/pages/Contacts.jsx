@@ -1,69 +1,125 @@
-import React, { useState } from 'react'
-
-const defaultQuestions = [
-  {
-    name: 'Aman Gupta',
-    email: 'aman@example.com',
-    subject: 'Can you design my 2BHK living room?',
-    message: 'I want a modern look with neutral colors and space for a projector.',
-  },
-  {
-    name: 'Sara Lee',
-    email: 'sara@example.com',
-    subject: 'How many revisions are included?',
-    message: 'If I do not like the first AI design, how many changes can I request?',
-  },
-  {
-    name: 'Ravi Kumar',
-    email: 'ravi@example.com',
-    subject: 'Timeline for full house design',
-    message: 'By when can I get the final designs for a 3BHK flat?',
-  },
-]
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
 
 export default function Contacts() {
-  const [items, setItems] = useState(() => {
-    const saved = localStorage.getItem('contactMessages')
-    return saved ? JSON.parse(saved) : defaultQuestions
-  })
+  const [messages, setMessages] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-  const remove = (idx) => {
-    const next = items.slice()
-    next.splice(idx, 1)
-    setItems(next)
-    localStorage.setItem('contactMessages', JSON.stringify(next))
+  useEffect(() => {
+    fetchMessages()
+  }, [])
+
+  const fetchMessages = async () => {
+    try {
+      const token = localStorage.getItem('token')
+      const res = await axios.get('http://localhost:5001/api/admin/contacts', {
+        headers: { 'x-auth-token': token }
+      })
+      setMessages(res.data)
+    } catch (err) {
+      setError('Failed to fetch contact messages')
+    } finally {
+      setLoading(false)
+    }
   }
+
+  const resolveMessage = async (id) => {
+    try {
+      const token = localStorage.getItem('token')
+      await axios.put(`http://localhost:5001/api/admin/contacts/${id}/resolve`, {}, {
+        headers: { 'x-auth-token': token }
+      })
+      // Update local state to reflect change immediately
+      setMessages(prev => prev.map(m => m.id === id ? { ...m, is_resolved: true } : m))
+    } catch (err) {
+      console.error('Resolve error:', err)
+      alert('Failed to resolve message')
+    }
+  }
+
+  if (loading) return <div style={{ padding: '40px', textAlign: 'center' }}>Loading Messages...</div>
 
   return (
     <div className="admin-contacts">
       <style>{`
-        .card { background: #ffffff; border: 1px solid rgba(0,40,80,0.15); border-radius: 14px; padding: 16px; color: #0b2a4a; box-shadow: 0 6px 20px rgba(11,42,74,0.08); }
-        .table { border-radius: 14px; overflow: hidden; background: #ffffff; }
+        .contacts-container { background: #ffffff; border: 1px solid rgba(0,40,80,0.1); border-radius: 20px; overflow: hidden; box-shadow: 0 4px 12px rgba(11,42,74,0.05); }
+        .header { padding: 24px; border-bottom: 1px solid #f1f5f9; }
+        .header h3 { margin: 0; font-size: 20px; font-weight: 700; color: #0f172a; }
+        .header p { margin: 4px 0 0; font-size: 14px; color: #64748b; }
+        
         table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 10px 12px; font-size: 12px; border-bottom: 1px solid rgba(0,40,80,0.1); }
-        th { text-align: left; background: #f5f8fb; }
-        .btn { padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(0,40,80,0.2); background: #0b2a4a; color: #fff; cursor: pointer; }
+        th { text-align: left; padding: 14px 24px; background: #f8fafc; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; }
+        td { padding: 18px 24px; font-size: 14px; border-bottom: 1px solid #f1f5f9; color: #334155; vertical-align: top; } // Adjusted td style to match original file's padding
+        tr:hover td { background: #f8fafc; }
+        
+        .user-info { font-weight: 600; color: #0f172a; display: block; }
+        .user-email { font-size: 12px; color: #64748b; display: block; }
+        .subject { font-weight: 600; color: #0b2a4a; margin-bottom: 4px; display: block; }
+        .message-text { font-size: 13px; line-height: 1.5; color: #475569; max-width: 400px; display: block; }
+        
+        .btn-resolve { 
+          background: #0b2a4a; color: white; border: none; padding: 6px 14px; border-radius: 8px; 
+          font-size: 12px; font-weight: 600; cursor: pointer; transition: opacity 0.2s;
+        }
+        .btn-resolve:disabled { background: #ecfdf5; color: #059669; cursor: default; }
+        
+        .status-badge { 
+          font-size: 11px; font-weight: 700; text-transform: uppercase; 
+          padding: 2px 8px; border-radius: 99px; display: inline-block; margin-top: 8px;
+        }
+        .status-pending { background: #fff7ed; color: #ea580c; }
+        .status-resolved { background: #ecfdf5; color: #059669; }
       `}</style>
-      <div className="card">
-        <h2 style={{ margin: '0 0 6px', fontSize: 18, color: '#0b2a4a' }}>Messages from users</h2>
-        <p style={{ margin: '0 0 14px', fontSize: 13, opacity: 0.8 }}>Every row below is a message sent from the Contact page.</p>
-        <div className="table">
+
+      <div className="contacts-container">
+        <div className="header">
+          <h3>Messages from users</h3>
+          <p>Every row below is a message sent from the Contact page.</p>
+        </div>
+
         <table>
-          <thead><tr><th>User name</th><th>Email</th><th>Subject</th><th>Message from user</th><th>Action</th></tr></thead>
+          <thead>
+            <tr>
+              <th>User Details</th>
+              <th>Subject & Message</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
           <tbody>
-            {items.length === 0 && <tr><td colSpan="5" style={{ padding: 12, opacity: 0.7 }}>No messages</td></tr>}
-            {items.map((m, idx) => (
-              <tr key={idx}>
-                <td>{m.name}</td>
-                <td>{m.email}</td>
-                <td>{m.subject}</td>
-                <td>{m.message}</td>
-                <td><button className="btn" onClick={() => remove(idx)}>Resolve</button></td>
-              </tr>
-            ))}
+            {messages.length === 0 ? (
+              <tr><td colSpan="4" style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>No messages found</td></tr>
+            ) : (
+              messages.map(m => (
+                <tr key={m.id}>
+                  <td>
+                    <span className="user-info">{m.name}</span>
+                    <span className="user-email">{m.email}</span>
+                  </td>
+                  <td>
+                    <span className="subject">{m.subject}</span>
+                    <span className="message-text">{m.message}</span>
+                  </td>
+                  <td>
+                    <span className={`status-badge ${m.is_resolved ? 'status-resolved' : 'status-pending'}`}>
+                      {m.is_resolved ? 'Resolved' : 'Pending'}
+                    </span>
+                  </td>
+                  <td>
+                    <button 
+                      className="btn-resolve" 
+                      onClick={() => resolveMessage(m.id)}
+                      disabled={m.is_resolved}
+                    >
+                      {m.is_resolved ? 'Done' : 'Resolve'}
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
-        </div>
       </div>
     </div>
   )

@@ -1,4 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import axios from 'axios'
 import AdminLayout from './AdminLayout'
 import Dashboard from './pages/Dashboard'
 import Users from './pages/Users'
@@ -36,11 +38,26 @@ function RequireAuth({ children }) {
 }
 
 function Orders() {
-  const rows = [
-    { id: 'ORD-1024', user: 'Aman Gupta', amount: '$10', status: 'Paid' },
-    { id: 'ORD-1025', user: 'Sara Lee', amount: '$5', status: 'Paid' },
-    { id: 'ORD-1026', user: 'John Park', amount: '$0', status: 'Free' },
-  ]
+  const [orders, setOrders] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const token = localStorage.getItem('token')
+        const res = await axios.get('http://localhost:5001/api/admin/orders', {
+          headers: { 'x-auth-token': token }
+        })
+        setOrders(res.data)
+      } catch (err) {
+        console.error('Failed to fetch orders', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchOrders()
+  }, [])
+
   return (
     <div className="admin-orders">
       <style>{`
@@ -53,18 +70,36 @@ function Orders() {
       `}</style>
       <div className="card">
         <h2 style={{ margin: '0 0 14px', fontSize: 18, color: '#0e3a63' }}>Orders</h2>
-        <div className="table">
-          <table>
-            <thead>
-              <tr><th>Order</th><th>User</th><th>Amount</th><th>Status</th></tr>
-            </thead>
-            <tbody>
-              {rows.map(r => (
-                <tr key={r.id}><td>{r.id}</td><td>{r.user}</td><td>{r.amount}</td><td>{r.status}</td></tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        {loading ? (
+          <p>Loading orders...</p>
+        ) : (
+          <div className="table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>User</th>
+                  <th>Plan</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {orders.map(r => (
+                  <tr key={r.id}>
+                    <td>{r.order_id}</td>
+                    <td>{r.user_name}</td>
+                    <td>{r.plan_type}</td>
+                    <td>{r.currency} {r.amount}</td>
+                    <td>{r.status}</td>
+                    <td>{new Date(r.created_at).toLocaleDateString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   )

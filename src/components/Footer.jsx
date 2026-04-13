@@ -11,7 +11,7 @@ export default function Footer() {
             <Link to="/">
               <img
                 src="/logo.png"
-                alt="Iconic Interiors Logo"
+                alt="Iconic Interior Logo"
                 className="footer-logo"
               />
             </Link>
@@ -44,7 +44,7 @@ export default function Footer() {
         </div>
 
         <div className="footer-bottom">
-          © {new Date().getFullYear()} Iconic Interiors. All rights reserved.
+          © {new Date().getFullYear()} Iconic Interior. All rights reserved.
         </div>
       </footer>
 

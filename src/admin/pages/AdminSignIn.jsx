@@ -1,20 +1,40 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
 
 export default function AdminSignIn() {
-  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault()
-    if (username === 'admin' && password === 'admin123') {
+    setLoading(true)
+    setError('')
+    
+    try {
+      const res = await axios.post('http://localhost:5001/api/auth/login', {
+        email: email,
+        password: password
+      })
+
+      if (res.data.user.role !== 'admin') {
+        setError('Access denied: You are not an admin')
+        setLoading(false)
+        return
+      }
+
+      localStorage.setItem('token', res.data.token)
+      localStorage.setItem('user', JSON.stringify(res.data.user))
       localStorage.setItem('adminAuth', 'true')
-      setError('')
+      window.dispatchEvent(new Event('storage'))
       navigate('/admin', { replace: true })
-    } else {
-      setError('Invalid credentials')
+    } catch (err) {
+      setError(err.response?.data?.message || 'Invalid credentials')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -76,14 +96,16 @@ export default function AdminSignIn() {
       <form className="card" onSubmit={submit}>
         <div className="title">Admin Sign In</div>
         <div className="row">
-          <label style={{ fontSize: 12, opacity: 0.7 }}>Username</label>
-          <input className="input" value={username} onChange={(e) => setUsername(e.target.value)} />
+          <label style={{ fontSize: 12, opacity: 0.7 }}>Email / Username</label>
+          <input className="input" value={email} onChange={(e) => setEmail(e.target.value)} />
         </div>
         <div className="row">
           <label style={{ fontSize: 12, opacity: 0.7 }}>Password</label>
           <input className="input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
         </div>
-        <button className="btn" type="submit">Sign In</button>
+        <button className="btn" type="submit" disabled={loading}>
+          {loading ? 'Signing In...' : 'Sign In'}
+        </button>
         {error && <div className="error">{error}</div>}
       </form>
     </div>

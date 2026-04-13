@@ -1,6 +1,39 @@
-import React from 'react';
+import React, { useState } from 'react';
+import axios from 'axios';
 
 const ContactUs = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setError('');
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setSuccess(false);
+    setError('');
+
+    try {
+      await axios.post('http://localhost:5001/api/contact', formData);
+      setSuccess(true);
+      setFormData({ name: '', email: '', subject: '', message: '' });
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to send message. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="contact-page">
       <style>{`
@@ -116,6 +149,20 @@ const ContactUs = () => {
         .submit-btn:hover {
           background: #2980b9;
         }
+        
+        .submit-btn:disabled {
+          background: #95a5a6;
+          cursor: not-allowed;
+        }
+
+        .alert {
+          padding: 15px;
+          border-radius: 6px;
+          margin-bottom: 20px;
+          font-size: 14px;
+        }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 
         @media (max-width: 850px) {
           .contact-container {
@@ -155,25 +202,59 @@ const ContactUs = () => {
         </div>
 
         <div className="contact-form-container">
-          <form className="contact-form">
+          <form className="contact-form" onSubmit={handleSubmit}>
             <h2>Send us a Message</h2>
+            
+            {success && <div className="alert alert-success">Your message has been sent successfully!</div>}
+            {error && <div className="alert alert-error">{error}</div>}
+
             <div className="form-group">
               <label>Full Name</label>
-              <input type="text" placeholder="Komal Mishra" required />
+              <input 
+                name="name"
+                type="text" 
+                placeholder="Komal Mishra" 
+                value={formData.name}
+                onChange={handleChange}
+                required 
+              />
             </div>
             <div className="form-group">
               <label>Email Address</label>
-              <input type="email" placeholder="komal@example.com" required />
+              <input 
+                name="email"
+                type="email" 
+                placeholder="komal@example.com" 
+                value={formData.email}
+                onChange={handleChange}
+                required 
+              />
             </div>
             <div className="form-group">
               <label>Subject</label>
-              <input type="text" placeholder="Inquiry about AI Design" required />
+              <input 
+                name="subject"
+                type="text" 
+                placeholder="Inquiry about AI Design" 
+                value={formData.subject}
+                onChange={handleChange}
+                required 
+              />
             </div>
             <div className="form-group">
               <label>Message</label>
-              <textarea rows="5" placeholder="Tell us about your project..." required></textarea>
+              <textarea 
+                name="message"
+                rows="5" 
+                placeholder="Tell us about your project..." 
+                value={formData.message}
+                onChange={handleChange}
+                required
+              ></textarea>
             </div>
-            <button type="submit" className="submit-btn">Send Message</button>
+            <button type="submit" className="submit-btn" disabled={loading}>
+              {loading ? 'Sending...' : 'Send Message'}
+            </button>
           </form>
         </div>
       </div>

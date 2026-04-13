@@ -1,13 +1,41 @@
-import { Link, Outlet, useLocation } from 'react-router-dom'
-import { useEffect } from 'react'
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 
 export default function AdminLayout() {
   const { pathname } = useLocation()
+  const navigate = useNavigate()
+  const [admin, setAdmin] = useState({ name: 'Admin', role: 'Superuser' })
   const theme = 'navy'
 
   useEffect(() => {
     window.scrollTo(0, 0)
-  }, [pathname])
+    const userStr = localStorage.getItem('user')
+    const token = localStorage.getItem('token')
+    
+    if (!userStr || !token) {
+      navigate('/admin/signin')
+      return
+    }
+
+    try {
+      const user = JSON.parse(userStr)
+      if (user.role === 'admin') {
+        setAdmin({ name: user.name, role: 'Administrator' })
+      } else {
+        navigate('/admin/signin')
+      }
+    } catch (err) {
+      navigate('/admin/signin')
+    }
+  }, [pathname, navigate])
+
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    localStorage.removeItem('adminAuth')
+    window.dispatchEvent(new Event('storage'))
+    navigate('/admin/signin')
+  }
 
   return (
     <div className={`admin-root theme-${theme}`}>
@@ -201,12 +229,26 @@ export default function AdminLayout() {
           <h1>Admin Panel</h1>
           <div className="top-actions">
             <div className="profile">
-              <div className="avatar">KM</div>
+              <div className="avatar">{admin.name.split(' ').map(n => n[0]).join('')}</div>
               <div style={{ fontSize: 12 }}>
-                <div>Komal Mishra</div>
-                <div style={{ opacity: 0.7 }}>Superuser</div>
+                <div>{admin.name}</div>
+                <div style={{ opacity: 0.7 }}>{admin.role}</div>
               </div>
             </div>
+            <button 
+              onClick={handleLogout}
+              style={{ 
+                padding: '6px 12px', 
+                borderRadius: '8px', 
+                border: '1px solid var(--border)',
+                background: '#ff4d4f',
+                color: 'white',
+                cursor: 'pointer',
+                fontSize: '12px'
+              }}
+            >
+              Logout
+            </button>
           </div>
         </div>
         <div className="content">

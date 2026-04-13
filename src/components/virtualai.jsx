@@ -1,133 +1,104 @@
 import { useState, useEffect } from "react";
-
-const STYLE_OPTIONS = [
-  "Contemporary",
-  "Modern",
-  "Minimal",
-  "Luxury",
-  "Scandinavian",
-  "Industrial",
-  "Traditional",
-  "Bohemian"
-];
-
-const COLOR_OPTIONS = [
-  { name: "Neutral", color: "#e5e7eb" },
-  { name: "Warm", color: "#f59e0b" },
-  { name: "Cool", color: "#60a5fa" },
-  { name: "Earthy", color: "#a16207" },
-  { name: "Monochrome", color: "#111827" },
-  { name: "Pastel", color: "#fbcfe8" }
-];
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function VirtualAI() {
+  const navigate = useNavigate();
   const [room, setRoom] = useState("Living Room");
-  const [scrollY, setScrollY] = useState(0);
-  const [changeText, setChangeText] = useState("");
-  const [fullPrompt, setFullPrompt] = useState([]);
-  const [image, setImage] = useState(null);
-
-  // NEW STATES (important)
-  const [openSection, setOpenSection] = useState(null); // "style" | "color"
   const [style, setStyle] = useState("Contemporary");
   const [color, setColor] = useState("Neutral");
-
+  const [changeText, setChangeText] = useState("");
+  const [changes, setChanges] = useState([]);
+  const [image, setImage] = useState(null);
+  const [uploadStatus, setUploadStatus] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImage, setGeneratedImage] = useState(null);
-  const [errorText, setErrorText] = useState("");
+  const [promptText, setPromptText] = useState("");
 
   useEffect(() => {
-    const onScroll = () => setScrollY(window.scrollY);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+    const user = localStorage.getItem("user");
+    if (!user) {
+      navigate("/signin");
+    }
+  }, [navigate]);
 
-  const addChange = () => {
-    if (!changeText.trim()) return;
-    setFullPrompt([...fullPrompt, changeText.trim()]);
-    setChangeText("");
+  const ROOM_TYPES = ["Living Room", "Dining Room", "Bedroom", "Kitchen", "Office"];
+  const STYLE_OPTIONS = ["Contemporary", "Modern Indian", "Minimal", "Luxury"];
+  const COLOR_OPTIONS = ["Neutral", "Warm", "Cool", "Earthy"];
+
+  useEffect(() => {
+    updatePrompt();
+  }, [room, style, color, changes]);
+
+  const updatePrompt = () => {
+    const basePrompt = `A ${style} ${room} with ${color} colors. `;
+    setPromptText(basePrompt + changes.join(", "));
   };
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onloadend = () => setImage(reader.result);
+    reader.onloadend = () => {
+      setImage(reader.result);
+      setUploadStatus(true);
+    };
     reader.readAsDataURL(file);
   };
 
-  const promptText = `
-Room: ${room}
-Style: ${style}
-Color: ${color}
-Changes: ${fullPrompt.join(", ")}
-  `.trim();
+  const addChange = () => {
+    if (!changeText.trim()) return;
+    setChanges([...changes, changeText.trim()]);
+    setChangeText("");
+  };
 
   const handleGenerate = async () => {
-    if (!image) {
-      setErrorText("Please upload a room photo first!");
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Please login first to use AI features!");
       return;
     }
+
+    if (!image) {
+      alert("Please upload a room photo first!");
+      return;
+    }
+
     setIsGenerating(true);
-    setErrorText("");
     setGeneratedImage(null);
 
     try {
-      const MISTRAL_API_KEY = "ANEg145zYTOLEUf65r2tVQhSQRemifNk";
-      const systemPrompt = `You are an expert interior designer AI. I am providing you with an image of a room. Based on the following parameters: 
-Room Type: ${room}
-Style: ${style}
-Color Scheme: ${color}
-User Specific Redesign Instructions: ${fullPrompt.join(", ") || "None"}
-
-Please text output ONLY a highly detailed, descriptive text prompt for an AI image generator (like Midjourney/Pollinations) that will redesign the given room according to these parameters. Focus heavily on lighting, textures, photorealism, and the specific style/colors requested. Keep the original room spatial layout in mind but radically transform its design. Do not include any other conversational text except the generation prompt itself.`;
-
-      const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${MISTRAL_API_KEY}`
-        },
-        body: JSON.stringify({
-          model: "pixtral-12b-2409",
-          messages: [
-            {
-              role: "user",
-              content: [
-                { type: "text", text: systemPrompt },
-                { type: "image_url", image_url: { url: image } }
-              ]
-            }
-          ]
-        })
+      const res = await axios.post("http://localhost:5001/api/ai/generate-design", {
+        roomType: room,
+        style: style,
+        colors: color,
+        description: promptText,
+        roomImage: image
+      }, {
+        headers: { "x-auth-token": token },
+        timeout: 120000 // Increased frontend timeout to 2 minutes
       });
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error?.message || "Failed to generate design prompt using Mistral");
+      if (res.data.success) {
+        console.log("Image URL received:", res.data.imageUrl);
+        setGeneratedImage(res.data.imageUrl);
+        setUploadStatus(false); // Reset upload status so it doesn't show "✓ Image is added"
+      } else {
+        alert(`Generation failed: ${res.data.message}\nDetail: ${res.data.detail || 'No detail available'}`);
       }
-
-      let generatedPrompt = data.choices[0].message.content.trim();
-
-      console.log("Mistral Raw:", generatedPrompt);
-      // Clean up markdown block quotes or extra newlines Mistral might output
-      generatedPrompt = generatedPrompt.replace(/```[a-z]*/gi, '').replace(/```/g, '');
-      generatedPrompt = generatedPrompt.replace(/\n/g, ' ').replace(/\r/g, '').replace(/"/g, '').trim();
-
-      // Enforce URL length safety
-      if (generatedPrompt.length > 800) {
-        generatedPrompt = generatedPrompt.substring(0, 800);
-      }
-      console.log("Mistral Cleaned:", generatedPrompt);
-
-      const seed = Math.floor(Math.random() * 100000);
-      const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(generatedPrompt)}?width=1024&height=768&seed=${seed}`;
-
-      // Directly setting the image URL ignores JS fetch blocking so the browser loads it properly natively.
-      setGeneratedImage(pollinationsUrl);
     } catch (error) {
-      console.error("Generation Error:", error);
-      setErrorText(error.message || "An error occurred during generation.");
+      console.error("Full error object:", error);
+      let errorMessage = "An error occurred during generation.";
+      let detail = "";
+      if (error.response) {
+        errorMessage = `Server Error (${error.response.status})`;
+        detail = JSON.stringify(error.response.data);
+      } else if (error.request) {
+        errorMessage = "No response from server. Make sure the backend is running on port 5001.";
+      } else {
+        errorMessage = error.message;
+      }
+      alert(`${errorMessage}\nDetail: ${detail}`);
     } finally {
       setIsGenerating(false);
     }
@@ -136,8 +107,6 @@ Please text output ONLY a highly detailed, descriptive text prompt for an AI ima
   return (
     <>
       <style>{`
-        * { box-sizing: border-box; }
-
         .ba-wrapper {
           min-height: 100vh;
           display: grid;
@@ -149,22 +118,67 @@ Please text output ONLY a highly detailed, descriptive text prompt for an AI ima
 
         .ba-hero {
           border-radius: 28px;
-          background:
-            linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)),
-            url(${image || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c"});
+          overflow: hidden;
+          background: linear-gradient(rgba(255,255,255,.85),rgba(255,255,255,.85)), 
+            url('${image || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c"}') center/cover no-repeat;
+          display: flex;
+          align-items: center;
+          padding: 60px;
+          transition: all .4s;
+          position: relative;
+          min-height: 500px;
           background-size: cover;
           background-position: center;
-          padding: 60px;
-          transform: translateY(${scrollY * 0.15}px);
         }
 
         .ba-hero h1 {
           font-size: 48px;
           color: #111827;
+          max-width: 520px;
+          z-index: 1;
+          transition: opacity 0.3s;
+        }
+
+        .download-overlay-btn {
+          position: absolute;
+          bottom: 30px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: #ec4899;
+          color: #fff;
+          padding: 12px 24px;
+          border-radius: 12px;
+          text-decoration: none;
+          font-weight: 600;
+          z-index: 10;
+          box-shadow: 0 10px 25px rgba(236,72,153,0.4);
+          transition: transform 0.2s;
+        }
+
+        .download-overlay-btn:hover {
+          transform: translateX(-50%) scale(1.05);
+        }
+
+        .ba-hero span {
+          color: #db2777;
+        }
+
+        .ba-hero .result-img {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border-radius: 28px;
+          z-index: 2;
+          display: block;
+          background: white;
         }
 
         .ba-panel {
           background: rgba(255,255,255,.92);
+          backdrop-filter: blur(18px);
           border-radius: 28px;
           padding: 32px;
           box-shadow: 0 25px 60px rgba(0,0,0,.1);
@@ -178,9 +192,13 @@ Please text output ONLY a highly detailed, descriptive text prompt for an AI ima
           text-align: center;
           font-weight: 600;
           cursor: pointer;
+          display: block;
+          margin-bottom: 10px;
         }
 
-        .upload input { display: none; }
+        .upload input {
+          display: none;
+        }
 
         .label {
           font-size: 13px;
@@ -192,6 +210,7 @@ Please text output ONLY a highly detailed, descriptive text prompt for an AI ima
           display: flex;
           gap: 10px;
           overflow-x: auto;
+          padding-bottom: 5px;
         }
 
         .room-pill {
@@ -199,71 +218,52 @@ Please text output ONLY a highly detailed, descriptive text prompt for an AI ima
           border-radius: 999px;
           background: #f3f4f6;
           cursor: pointer;
+          white-space: nowrap;
+          transition: all 0.2s;
         }
 
-        .room-pill.active {
+        .room-pill.active, .room-pill:hover {
           background: #111827;
           color: #fff;
         }
 
-        /* DROPDOWN HEADER */
-        .dropdown {
-          border: 1px solid #e5e7eb;
-          border-radius: 14px;
-          padding: 14px;
-          cursor: pointer;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-
-        .dropdown-options {
-          margin-top: 14px;
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-          gap: 12px;
-        }
-
-        .option {
-          padding: 10px;
-          border-radius: 10px;
-          background: #f3f4f6;
-          cursor: pointer;
-          text-align: center;
-        }
-
-        .option.active {
-          background: #111827;
-          color: #fff;
-        }
-
-        .color-chip {
-          height: 42px;
-          border-radius: 10px;
-        }
-
-        input, textarea {
+        select, input, textarea {
           width: 100%;
           padding: 12px;
           border-radius: 12px;
           border: 1px solid #e5e7eb;
+          font-size: 14px;
+          background: #fff;
+        }
+
+        textarea {
+          resize: none;
+          min-height: 70px;
         }
 
         .change-box {
           border: 2px solid #ec4899;
           border-radius: 18px;
           padding: 14px;
-          margin-top: 8px;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .change-actions {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
         }
 
         .add-btn {
-          margin-top: 10px;
-          background: #db2777;
-          color: #fff;
-          padding: 10px;
+          background: #e5e7eb;
+          color: #4b5563;
+          padding: 8px 14px;
           border-radius: 10px;
-          text-align: center;
           cursor: pointer;
+          font-size: 13px;
+          font-weight: 500;
         }
 
         .generate {
@@ -275,150 +275,46 @@ Please text output ONLY a highly detailed, descriptive text prompt for an AI ima
           text-align: center;
           font-weight: 600;
           cursor: pointer;
+          transition: opacity 0.3s;
         }
 
-        .error-message {
-          color: #dc2626;
-          background: #fee2e2;
-          padding: 12px;
-          border-radius: 12px;
-          margin-top: 15px;
-          font-weight: 500;
-          font-size: 14px;
-          text-align: center;
+        .generate.loading {
+          opacity: 0.7;
+          pointer-events: none;
         }
 
-        .generation-loading {
-          text-align: center;
-          padding: 40px;
-          background: rgba(255,255,255,0.9);
-          border-radius: 20px;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-          margin-top: 20px;
-        }
-
-        .spinner {
-          border: 4px solid rgba(219, 39, 119, 0.2);
-          border-left-color: #db2777;
-          border-radius: 50%;
-          width: 50px;
-          height: 50px;
-          animation: spin 1s linear infinite;
-          margin: 0 auto 20px;
-        }
-
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        .before-after-container {
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
-          margin-top: 20px;
-          height: 100%;
-          justify-content: center;
-        }
-
-        .image-box {
-          position: relative;
-          border-radius: 20px;
-          overflow: hidden;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-          background: #000;
-        }
-
-        .preview-img {
-          width: 100%;
-          height: auto;
-          display: block;
-          max-height: 400px;
-          object-fit: cover;
-        }
-
-        .badge {
-          position: absolute;
-          top: 15px;
-          left: 15px;
-          background: rgba(0,0,0,0.7);
-          color: #fff;
-          padding: 6px 14px;
-          border-radius: 20px;
-          font-weight: 600;
-          font-size: 14px;
-          backdrop-filter: blur(4px);
-          z-index: 10;
-        }
-
-        .download-btn {
-          position: absolute;
-          bottom: 15px;
-          right: 15px;
-          background: #db2777;
-          color: #fff;
-          padding: 8px 16px;
-          border-radius: 20px;
-          text-decoration: none;
-          font-weight: 600;
-          font-size: 13px;
-          transition: 0.2s;
-          cursor: pointer;
-          border: none;
-          z-index: 10;
-        }
-
-        .download-btn:hover {
-          background: #be185d;
-        }
-
-        @media(max-width: 900px){
-          .ba-wrapper { grid-template-columns: 1fr; }
+        @media(max-width:900px) {
+          .ba-wrapper {
+            grid-template-columns: 1fr;
+            padding: 40px 24px;
+          }
         }
       `}</style>
 
       <section className="ba-wrapper">
-        <div className="ba-hero">
-          {!generatedImage && !isGenerating && !image && (
-            <h1>
-              My <span style={{ color: "#db2777" }}>AI Room Designer</span><br />
-              Design Your Dream Space
+        <div className="ba-hero" style={
+          isGenerating ? {
+            background: '#f3f4f6 url("https://i.gifer.com/ZZ5H.gif") center no-repeat',
+            backgroundSize: '50px'
+          } : {}
+        }>
+          {!generatedImage && !isGenerating && (
+            <h1 style={{ opacity: isGenerating ? '0.3' : '1' }}>
+              My <span>AI Room Designer</span><br />Design Your Dream Space Online
             </h1>
           )}
 
-          {isGenerating && (
-            <div className="generation-loading">
-              <div className="spinner"></div>
-              <h3 style={{ color: '#111827', margin: '0 0 10px 0' }}>AI is designing your room...</h3>
-              <p style={{ color: '#6b7280', margin: 0 }}>Analyzing with Mistral Vision & Generating Image.</p>
-            </div>
-          )}
-
-          {(generatedImage || (!isGenerating && image)) && (
-            <div className="before-after-container">
-              {/* BEFORE IMAGE */}
-              <div className="image-box">
-                <img src={image} alt="Before" className="preview-img" />
-                <span className="badge">Before</span>
-              </div>
-
-              {/* AFTER IMAGE */}
-              {generatedImage && (
-                <div className="image-box">
-                  <img src={generatedImage} alt="After" className="preview-img" crossOrigin="anonymous" referrerPolicy="no-referrer" />
-                  <span className="badge">After (AI Design)</span>
-                  <button
-                    onClick={() => {
-                      const link = document.createElement('a');
-                      link.href = generatedImage;
-                      link.download = 'ai-room-design.jpg';
-                      link.target = '_blank';
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
-                    }}
-                    className="download-btn">
-                    Download High Res
-                  </button>
-                </div>
-              )}
+          {generatedImage && (
+            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 5 }}>
+              <img src={generatedImage} className="result-img" alt="Generated Design" style={{ display: 'block', width: '100%', height: '100%' }} />
+              <a
+                href={generatedImage}
+                download="My-AI-Design.png"
+                className="download-overlay-btn"
+                style={{ zIndex: 10 }}
+              >
+                Download Design ↓
+              </a>
             </div>
           )}
         </div>
@@ -428,10 +324,15 @@ Please text output ONLY a highly detailed, descriptive text prompt for an AI ima
             ＋ Upload room photo
             <input type="file" accept="image/*" onChange={handleImageUpload} />
           </label>
+          {uploadStatus && (
+            <div style={{ fontSize: '12px', color: '#10b981', marginTop: '5px', fontWeight: '600', textAlign: 'center' }}>
+              ✓ Image is added
+            </div>
+          )}
 
-          <div className="label">Room type</div>
+          <div className="label">What type of room?</div>
           <div className="rooms">
-            {["Living Room", "Bedroom", "Kitchen", "Bathroom"].map(r => (
+            {ROOM_TYPES.map(r => (
               <div
                 key={r}
                 className={`room-pill ${room === r ? "active" : ""}`}
@@ -442,83 +343,47 @@ Please text output ONLY a highly detailed, descriptive text prompt for an AI ima
             ))}
           </div>
 
-          {/* STYLE DROPDOWN */}
           <div className="label">Choose style</div>
-          <div
-            className="dropdown"
-            onClick={() => setOpenSection(openSection === "style" ? null : "style")}
-          >
-            <span>{style}</span>
-            <span>▾</span>
-          </div>
+          <select value={style} onChange={(e) => setStyle(e.target.value)}>
+            {STYLE_OPTIONS.map(s => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
 
-          {openSection === "style" && (
-            <div className="dropdown-options">
-              {STYLE_OPTIONS.map(s => (
-                <div
-                  key={s}
-                  className={`option ${style === s ? "active" : ""}`}
-                  onClick={() => {
-                    setStyle(s);
-                    setOpenSection(null);
-                  }}
-                >
-                  {s}
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* COLOR DROPDOWN */}
           <div className="label">Choose colors</div>
-          <div
-            className="dropdown"
-            onClick={() => setOpenSection(openSection === "color" ? null : "color")}
-          >
-            <span>{color}</span>
-            <span>▾</span>
-          </div>
-
-          {openSection === "color" && (
-            <div className="dropdown-options">
-              {COLOR_OPTIONS.map(c => (
-                <div
-                  key={c.name}
-                  className="option"
-                  onClick={() => {
-                    setColor(c.name);
-                    setOpenSection(null);
-                  }}
-                >
-                  <div
-                    className="color-chip"
-                    style={{ background: c.color }}
-                  />
-                  {c.name}
-                </div>
-              ))}
-            </div>
-          )}
+          <select value={color} onChange={(e) => setColor(e.target.value)}>
+            {COLOR_OPTIONS.map(c => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
 
           <div className="label">What changes would you like?</div>
           <div className="change-box">
             <input
+              type="text"
               value={changeText}
               onChange={(e) => setChangeText(e.target.value)}
-              placeholder="Add wooden flooring, modern sofa..."
+              placeholder="e.g. Add a modern sofa, paint walls light blue..."
             />
-            <div className="add-btn" onClick={addChange}>
-              Add change
+            <div className="change-actions">
+              <span style={{ fontSize: '12px', color: '#9ca3af' }}>↺ ↻</span>
+              <div className="add-btn" onClick={addChange}>Add change</div>
             </div>
           </div>
 
-          <div className="label">Final Prompt</div>
-          <textarea value={promptText} readOnly />
+          <div className="label">Full prompt</div>
+          <textarea
+            className="prompt-box"
+            value={promptText}
+            readOnly
+          />
 
-          <div className="generate" onClick={handleGenerate}>
-            {isGenerating ? "Generating..." : "Generate Design ✨"}
+          <div
+            className={`generate ${isGenerating ? 'loading' : ''}`}
+            onClick={handleGenerate}
+          >
+            {isGenerating ? 'Generating... ⏳' : 'Generate Design ✨'}
           </div>
-          {errorText && <div className="error-message">{errorText}</div>}
         </div>
       </section>
     </>

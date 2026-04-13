@@ -116,7 +116,7 @@ const About = () => {
         <div className="about-section">
           <div className="text-content">
             <h2>Our Vision</h2>
-            <p>At Iconic Interiors, we believe that everyone deserves to live in a space that reflects their personality and inspires their daily life. We combine cutting-edge AI technology with professional design principles to make high-end interior design accessible to everyone.</p>
+            <p>At Iconic Interior, we believe that everyone deserves to live in a space that reflects their personality and inspires their daily life. We combine cutting-edge AI technology with professional design principles to make high-end interior design accessible to everyone.</p>
             <p>Our platform allows you to visualize your dream home in seconds, removing the guesswork and uncertainty from the renovation process.</p>
           </div>
           <img src="/after bedroom.png" alt="Our Vision" className="about-img" />

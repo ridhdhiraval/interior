@@ -1,8 +1,93 @@
 import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useGoogleLogin } from '@react-oauth/google';
 
 export default function Auth() {
   const [page, setPage] = useState("login");
-  // login | register | forgot | success
+  const [formData, setFormData] = useState({ name: "", email: "", password: "" });
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      console.log('Google login successful, sending to backend...', tokenResponse);
+      setLoading(true);
+      try {
+        const res = await axios.post("http://localhost:5001/api/auth/google", {
+          access_token: tokenResponse.access_token
+        });
+        localStorage.setItem("token", res.data.token);
+        localStorage.setItem("user", JSON.stringify(res.data.user));
+        window.dispatchEvent(new Event('storage'));
+        navigate("/");
+      } catch (err) {
+        console.error('Backend Google login error:', err.response?.data || err.message);
+        setError(err.response?.data?.message || "Google login failed on server");
+      } finally {
+        setLoading(false);
+      }
+    },
+    onError: (error) => {
+      console.error('Google OAuth error:', error);
+      setError("Google OAuth failed: Please check your configuration");
+    }
+  });
+
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await axios.post("http://localhost:5001/api/auth/forgot-password", { email: forgotEmail });
+      setPage("success");
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to send reset link");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setError("");
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await axios.post("http://localhost:5001/api/auth/login", {
+        email: formData.email,
+        password: formData.password
+      });
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+      window.dispatchEvent(new Event('storage'));
+      navigate("/");
+    } catch (err) {
+      setError(err.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await axios.post("http://localhost:5001/api/auth/register", formData);
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+      window.dispatchEvent(new Event('storage'));
+      navigate("/"); // Redirect directly to home
+    } catch (err) {
+      setError(err.response?.data?.message || "Registration failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="wrapper">
@@ -171,28 +256,46 @@ export default function Auth() {
         <div className="card">
           <div className="left" />
           <div className="right">
-            <h1>ICONIC INTERIORS</h1>
+            <h1>ICONIC INTERIOR</h1>
             <h2>Welcome Back</h2>
 
-            <label>Email Address</label>
-            <input />
+            {error && <div style={{ color: "red", textAlign: "center", marginBottom: "10px" }}>{error}</div>}
 
-            <label>Password</label>
-            <input type="password" />
+            <form onSubmit={handleLogin}>
+              <label>Email Address</label>
+              <input 
+                name="email" 
+                type="email" 
+                required 
+                value={formData.email} 
+                onChange={handleChange} 
+              />
 
-            <div className="forgot" onClick={() => setPage("forgot")}>
-              Forgot password?
-            </div>
+              <label>Password</label>
+              <input 
+                name="password" 
+                type="password" 
+                required 
+                value={formData.password} 
+                onChange={handleChange} 
+              />
+
+              <div className="forgot" onClick={() => setPage("forgot")}>
+                Forgot password?
+              </div>
+
+              <button className="btn" type="submit" disabled={loading}>
+                {loading ? "Signing In..." : "Sign In"}
+              </button>
+            </form>
 
             <div className="divider">
               <span />OR CONTINUE WITH<span />
             </div>
 
-            <div className="google">
+            <div className="google" onClick={() => handleGoogleLogin()}>
               <img src="/google.png" width="18" /> Google
             </div>
-
-            <button className="btn">Sign In</button>
 
             <div className="link" onClick={() => setPage("register")}>
               Don’t have an account? Create one for free
@@ -206,19 +309,42 @@ export default function Auth() {
         <div className="card">
           <div className="left" />
           <div className="right">
-            <h1>ICONIC INTERIORS</h1>
+            <h1>ICONIC INTERIOR</h1>
             <h2>Create Account</h2>
 
-            <label>Full Name</label>
-            <input />
+            {error && <div style={{ color: "red", textAlign: "center", marginBottom: "10px" }}>{error}</div>}
 
-            <label>Email Address</label>
-            <input />
+            <form onSubmit={handleRegister}>
+              <label>Full Name</label>
+              <input 
+                name="name" 
+                required 
+                value={formData.name} 
+                onChange={handleChange} 
+              />
 
-            <label>Password</label>
-            <input type="password" />
+              <label>Email Address</label>
+              <input 
+                name="email" 
+                type="email" 
+                required 
+                value={formData.email} 
+                onChange={handleChange} 
+              />
 
-            <button className="btn">Sign Up</button>
+              <label>Password</label>
+              <input 
+                name="password" 
+                type="password" 
+                required 
+                value={formData.password} 
+                onChange={handleChange} 
+              />
+
+              <button className="btn" type="submit" disabled={loading}>
+                {loading ? "Creating Account..." : "Sign Up"}
+              </button>
+            </form>
 
             <div className="link" onClick={() => setPage("login")}>
               Already have an account? Sign In
@@ -240,12 +366,22 @@ export default function Auth() {
             password.
           </h2>
 
-          <label style={{ textAlign: "left" }}>Email Address</label>
-          <input placeholder="Enter your email" />
+          {error && <div style={{ color: "red", textAlign: "center", marginBottom: "10px" }}>{error}</div>}
 
-          <button className="btn" onClick={() => setPage("success")}>
-            Send Reset Link
-          </button>
+          <form onSubmit={handleForgotPassword}>
+            <label style={{ textAlign: "left" }}>Email Address</label>
+            <input 
+              type="email" 
+              placeholder="Enter your email" 
+              required 
+              value={forgotEmail} 
+              onChange={(e) => setForgotEmail(e.target.value)}
+            />
+
+            <button className="btn" type="submit" disabled={loading}>
+              {loading ? "Sending..." : "Send Reset Link"}
+            </button>
+          </form>
 
           <div className="back" onClick={() => setPage("login")}>
             ← Back To Login
@@ -254,9 +390,31 @@ export default function Auth() {
           <div className="small">
             Need Help? Contact our support team at <br />
             <span style={{ color: "#2563eb" }}>
-              support@iconicinteriors.com
+              support@iconicinterior.com
             </span>
           </div>
+        </div>
+      )}
+
+      {/* REGISTRATION SUCCESS */}
+      {page === "reg-success" && (
+        <div className="center">
+          <div className="icon success">
+            <img src="/check.png" width="30" />
+          </div>
+
+          <h1>Registration Successful!</h1>
+          <h2>
+            Welcome to ICONIC INTERIOR! Your account has been created successfully.
+          </h2>
+
+          <button
+            className="btn"
+            style={{ marginTop: 25 }}
+            onClick={() => navigate("/")}
+          >
+            Go To Home
+          </button>
         </div>
       )}
 

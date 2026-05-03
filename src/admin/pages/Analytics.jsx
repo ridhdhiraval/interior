@@ -83,36 +83,12 @@ export default function Analytics() {
 
       <div className="row">
         <div className="card"><p className="title">Active Users</p><div className="value">{data.activeUsers}</div></div>
-        <div className="card"><p className="title">Revenue</p><div className="value">${data.revenueTotal}</div></div>
         <div className="card"><p className="title">PRO Plans</p><div className="value">{data.planStats.find(p => p.plan_type === 'PRO')?.count || 0}</div></div>
         <div className="card"><p className="title">Standard Plans</p><div className="value">{data.planStats.find(p => p.plan_type === 'STANDARD')?.count || 0}</div></div>
       </div>
 
       <div className="panel">
-        <div className="chart-box">
-          <div className="legend">
-            <span><span className="dot" style={{ background: '#0b2a4a' }}></span>Revenue trend over time</span>
-          </div>
-          <div style={{ height: '240px', position: 'relative' }}>
-            {chartPoints ? (
-              <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
-                <polyline 
-                  fill="none" 
-                  stroke="#0b2a4a" 
-                  strokeWidth="2" 
-                  vectorEffect="non-scaling-stroke"
-                  points={chartPoints} 
-                />
-              </svg>
-            ) : (
-              <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
-                No revenue data for this period
-              </div>
-            )}
-          </div>
-        </div>
-        
-        <div className="table-box">
+        <div className="table-box" style={{ gridColumn: '1 / -1' }}>
           <table>
             <thead>
               <tr>

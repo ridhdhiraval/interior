@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const axios = require('axios');
+const db = require('../db');
 
 /**
  * @route   POST /api/ai/generate-design
@@ -11,13 +12,21 @@ const axios = require('axios');
 router.post('/generate-design', auth, async (req, res) => {
     const { roomType, style, colors, description, roomImage } = req.body;
     
-    // Prioritize API key from .env, fallback to the one provided earlier
-    const apiKey = (process.env.MISTRAL_API_KEY || "ANEg145zYTOLEUf65r2tVQhSQRemifNk").trim();
-
-    console.log(`--- AI Generation Start ---`);
-    console.log(`Room: ${roomType}, Style: ${style}, Colors: ${colors}`);
-
     try {
+        // Check user plan and credits
+        const userRes = await db.query('SELECT plan, ai_credits FROM users WHERE id = $1', [req.user.id]);
+        const user = userRes.rows[0];
+
+        if (user.plan === 'FREE' && user.ai_credits <= 0) {
+            return res.status(403).json({ message: 'Insufficient AI Design credits. Please upgrade your plan.' });
+        }
+
+        // Prioritize API key from .env, fallback to the one provided earlier
+        const apiKey = (process.env.MISTRAL_API_KEY || "ANEg145zYTOLEUf65r2tVQhSQRemifNk").trim();
+
+        console.log(`--- AI Generation Start ---`);
+        console.log(`Room: ${roomType}, Style: ${style}, Colors: ${colors}`);
+
         const messages = [
             {
                 role: "system",
@@ -110,6 +119,11 @@ router.post('/generate-design', auth, async (req, res) => {
         
         const base64Image = Buffer.from(imageRes.data, 'binary').toString('base64');
         const dataUrl = `data:image/png;base64,${base64Image}`;
+
+        // Decrement credits for FREE users on success
+        if (user.plan === 'FREE') {
+            await db.query('UPDATE users SET ai_credits = ai_credits - 1 WHERE id = $1', [req.user.id]);
+        }
 
         console.log('--- AI Generation Success ---');
         

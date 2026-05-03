@@ -52,13 +52,7 @@ export default function Dashboard() {
       </div>
 
       <div className="panel">
-        <div className="chart">
-          <h4>Revenue (last 30d)</h4>
-          <div style={{ height: '220px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fbff', borderRadius: '10px' }}>
-            <p style={{ opacity: 0.6 }}>Revenue chart will appear here</p>
-          </div>
-        </div>
-        <div className="list">
+        <div className="list" style={{ gridColumn: '1 / -1' }}>
           <table>
             <thead>
               <tr>
@@ -71,7 +65,7 @@ export default function Dashboard() {
               {loading ? (
                 <tr><td colSpan="3">Loading...</td></tr>
               ) : (
-                users.slice(0, 5).map((user) => (
+                users.slice(0, 10).map((user) => (
                   <tr key={user.id}>
                     <td>{user.name}</td>
                     <td>{user.email}</td>

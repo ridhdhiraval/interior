@@ -105,11 +105,13 @@ export default function Auth() {
         .card{
           width:1050px;
           height:540px;
-          background:#fffaf2;
+          background:transparent;
           border-radius:20px;
           display:flex;
           overflow:hidden;
           box-shadow:0 30px 60px rgba(0,0,0,.4);
+          border:none;
+          outline:none;
         }
 
         .left{
@@ -123,6 +125,7 @@ export default function Auth() {
           display:flex;
           flex-direction:column;
           justify-content:center;
+          background:#fffaf2;
         }
 
         h1{

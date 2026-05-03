@@ -6,8 +6,10 @@ export default function Navbar() {
   const navigate = useNavigate()
   const [user, setUser] = useState(null)
   const [unreadCount, setUnreadCount] = useState(0)
+  const [siteName, setSiteName] = useState('Iconic Interior')
 
   useEffect(() => {
+    fetchSettings()
     const checkUser = () => {
       const storedUser = localStorage.getItem('user')
       if (storedUser) {
@@ -33,6 +35,15 @@ export default function Navbar() {
       clearInterval(interval)
     }
   }, [])
+
+  const fetchSettings = async () => {
+    try {
+      const res = await axios.get('http://localhost:5001/api/public/settings')
+      if (res.data.siteName) setSiteName(res.data.siteName)
+    } catch (err) {
+      console.error('Failed to fetch settings', err)
+    }
+  }
 
   const fetchUnreadCount = async () => {
     try {
@@ -215,7 +226,7 @@ export default function Navbar() {
         </div>
 
         <div className="nav-center">
-          <Link to="/" className="nav-logo">Iconic Interior</Link>
+          <Link to="/" className="nav-logo">{siteName}</Link>
         </div>
 
         <div className="nav-right">

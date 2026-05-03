@@ -1,19 +1,181 @@
-import React, { useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useMemo, useState, useEffect } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 export default function Payment() {
   const { plan } = useParams();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [dbPlans, setDbPlans] = useState([]);
+  const [settings, setSettings] = useState({ currency: 'INR' });
+
+  useEffect(() => {
+    // Redirect if not logged in
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/signin');
+      return;
+    }
+    fetchGlobalData();
+  }, [navigate]);
+
+  const fetchGlobalData = async () => {
+    try {
+      const [settingsRes, plansRes] = await Promise.all([
+        axios.get('http://localhost:5001/api/public/settings'),
+        axios.get('http://localhost:5001/api/public/plans')
+      ]);
+      setSettings(settingsRes.data);
+      setDbPlans(plansRes.data);
+    } catch (err) {
+      console.error('Failed to fetch global data', err);
+      // Ensure we have some default plans if API fails
+      setDbPlans([
+        { name: 'STANDARD', monthly: 5.00, yearly: 50.00 },
+        { name: 'PRO', monthly: 10.00, yearly: 100.00 }
+      ]);
+    }
+  };
+
+  const getCurrencySymbol = (code) => {
+    const symbols = { 'USD': '$', 'INR': '₹', 'EUR': '€', 'GBP': '£' };
+    return symbols[code] || code;
+  };
 
   const data = useMemo(() => {
     const normalized = (plan || '').toLowerCase();
     const label = normalized === 'pro' ? 'PRO' : 'STANDARD';
-    const amount = normalized === 'pro' ? 19 : 9;
+    
+    const planInfo = dbPlans.find(p => p.name === label);
+    // Use pricing from DB if available, otherwise fallback to defaults from screenshot
+    const amount = planInfo ? parseFloat(planInfo.monthly) : (label === 'PRO' ? 10.00 : 5.00);
+    
     const upiId = 'iconicinterior@upi';
-    const payeeName = 'Iconic Interior';
-    const note = `${label} Subscription`;
-    const intent = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(payeeName)}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
-    return { label, amount, upiId, intent };
-  }, [plan]);
+    return { label, amount, upiId };
+  }, [plan, dbPlans]);
+
+  const handlePaymentDone = async () => {
+    setLoading(true);
+    setMessage('Verifying your payment...');
+
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setMessage('You are not logged in. Please sign in again.');
+        setLoading(false);
+        return;
+      }
+      await axios.post('http://localhost:5001/api/orders/confirm-upi', {
+        plan_type: data.label,
+        amount: data.amount
+      }, {
+        headers: { 'x-auth-token': token }
+      });
+
+      // Update local user data
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        user.plan = data.label;
+        localStorage.setItem('user', JSON.stringify(user));
+      }
+
+      setIsSuccess(true);
+      setLoading(false);
+
+      setTimeout(() => {
+        navigate('/my-profile');
+      }, 3000);
+
+    } catch (err) {
+      console.error('Payment error detail:', err.response?.data || err.message);
+      const errorMsg = err.response?.data?.message || err.response?.data?.error || 'Verification failed. Please ensure you have completed the payment via QR.';
+      setMessage(errorMsg);
+      setLoading(false);
+    }
+  };
+
+  if (isSuccess) {
+    return (
+      <div className="payment-page">
+        <style>{`
+          .payment-page {
+            padding-top: 100px;
+            min-height: 100vh;
+            background: #f7f9fc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Inter', sans-serif;
+          }
+          .success-card {
+            background: white;
+            width: 100%;
+            max-width: 450px;
+            padding: 50px 40px;
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+          }
+          .success-icon {
+            width: 80px;
+            height: 80px;
+            background: #e8f5e9;
+            color: #4caf50;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin: 0 auto 24px;
+          }
+          .success-title {
+            font-size: 26px;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+          }
+          .success-msg {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+          }
+          .redirect-loader {
+            width: 100%;
+            height: 4px;
+            background: #f0f0f0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 20px;
+          }
+          .loader-bar {
+            height: 100%;
+            background: #4caf50;
+            animation: loading 3s linear forwards;
+          }
+          @keyframes loading {
+            0% { width: 0; }
+            100% { width: 100%; }
+          }
+        `}</style>
+        <div className="success-card">
+          <div className="success-icon">✓</div>
+          <div className="success-title">Payment Received!</div>
+          <div className="success-msg">
+            Your subscription to <strong>{data.label} Plan</strong> is now active. 
+            Enjoy your new features!
+          </div>
+          <div className="redirect-loader">
+            <div className="loader-bar"></div>
+          </div>
+          <p style={{ marginTop: '15px', color: '#999', fontSize: '13px' }}>Redirecting to profile...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="payment-page">
@@ -23,140 +185,205 @@ export default function Payment() {
           min-height: 100vh;
           background: #f7f9fc;
           font-family: 'Inter', sans-serif;
+          padding-bottom: 60px;
         }
         .container {
-          max-width: 900px;
+          max-width: 500px;
           margin: 0 auto;
-          padding: 40px 20px 70px;
+          padding: 0 20px;
         }
-        .header {
-          display: flex;
-          justify-content: space-between;
+        .back-link {
+          display: inline-flex;
           align-items: center;
-          margin-bottom: 24px;
-        }
-        .title {
-          font-size: 32px;
-          font-weight: 700;
-          color: #222;
-        }
-        .back {
-          color: #2196f3;
+          color: #64748b;
           text-decoration: none;
           font-weight: 600;
+          font-size: 14px;
+          margin-bottom: 24px;
+          transition: color 0.2s;
         }
-        .card {
+        .back-link:hover { color: #1a1a1a; }
+        
+        .payment-card {
           background: #fff;
-          border: 1px solid #e6e9ef;
-          border-radius: 12px;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.06);
-          padding: 28px;
-          display: grid;
-          grid-template-columns: 1.2fr 1fr;
-          gap: 28px;
+          border-radius: 24px;
+          box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+          padding: 40px;
+          text-align: center;
         }
-        .section-title {
-          font-size: 18px;
-          font-weight: 700;
-          color: #444;
-          margin-bottom: 12px;
-        }
-        .summary {
+        .plan-badge {
+          display: inline-block;
+          padding: 6px 16px;
           background: #f1f7ff;
-          border: 1px solid #cfe4ff;
-          border-radius: 10px;
-          padding: 16px;
-          margin-bottom: 18px;
-        }
-        .summary-row {
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 8px;
-          color: #333;
-        }
-        .upi-box {
-          background: #fafafa;
-          border: 1px dashed #d0d0d0;
-          border-radius: 10px;
-          padding: 16px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-        .upi-id {
-          font-weight: 700;
-          color: #222;
-        }
-        .copy-btn {
-          padding: 8px 12px;
-          border-radius: 6px;
-          border: 1px solid #2196f3;
           color: #2196f3;
-          background: #eaf5ff;
-          cursor: pointer;
+          border-radius: 100px;
+          font-size: 12px;
+          font-weight: 700;
+          text-transform: uppercase;
+          margin-bottom: 16px;
         }
-        .qr-wrap {
+        .amount-display {
+          font-size: 36px;
+          font-weight: 800;
+          color: #1a1a1a;
+          margin-bottom: 8px;
+        }
+        .amount-sub {
+          color: #64748b;
+          font-size: 14px;
+          margin-bottom: 32px;
+        }
+        
+        .qr-section {
+          background: #f8fafc;
+          border-radius: 20px;
+          padding: 24px;
+          margin-bottom: 32px;
+          border: 1px solid #f1f5f9;
+        }
+        .qr-title {
+          font-size: 15px;
+          font-weight: 700;
+          color: #475569;
+          margin-bottom: 16px;
+        }
+        .qr-image-wrapper {
+          background: white;
+          padding: 16px;
+          border-radius: 16px;
+          display: inline-block;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+          margin-bottom: 16px;
+        }
+        .upi-id-display {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 13px;
+          color: #64748b;
+          background: #fff;
+          padding: 8px 16px;
+          border-radius: 8px;
+          border: 1px dashed #cbd5e1;
+        }
+
+        .done-btn {
+          width: 100%;
+          padding: 16px;
+          border: none;
+          border-radius: 14px;
+          background: #00c853;
+          color: white;
+          font-size: 16px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.2s;
+          box-shadow: 0 4px 12px rgba(0, 200, 83, 0.2);
+        }
+        .done-btn:hover {
+          background: #00b34a;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 15px rgba(0, 200, 83, 0.3);
+        }
+        .done-btn:disabled {
+          background: #94a3b8;
+          cursor: not-allowed;
+          transform: none;
+          box-shadow: none;
+        }
+
+        .status-msg {
+          margin-top: 16px;
+          padding: 12px;
+          border-radius: 10px;
+          font-size: 14px;
+          font-weight: 600;
+        }
+        .msg-info { background: #eff6ff; color: #3b82f6; }
+        .msg-error { background: #fef2f2; color: #ef4444; }
+
+        .steps {
+          text-align: left;
+          margin-top: 32px;
+          padding-top: 24px;
+          border-top: 1px solid #f1f5f9;
+        }
+        .step-item {
+          display: flex;
+          gap: 12px;
+          margin-bottom: 12px;
+          font-size: 13px;
+          color: #64748b;
+        }
+        .step-num {
+          width: 20px;
+          height: 20px;
+          background: #e2e8f0;
+          color: #475569;
+          border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
-          background: #fff;
-          border: 1px solid #e6e9ef;
-          border-radius: 12px;
-          padding: 16px;
-        }
-        .pay-btn {
-          width: 100%;
-          padding: 12px 16px;
-          border: none;
-          border-radius: 8px;
-          background: #00c853;
-          color: white;
+          font-size: 11px;
           font-weight: 700;
-          cursor: pointer;
-          margin-top: 16px;
-        }
-        .note {
-          font-size: 13px;
-          color: #777;
-          margin-top: 8px;
-        }
-        @media (max-width: 900px) {
-          .card {
-            grid-template-columns: 1fr;
-          }
+          flex-shrink: 0;
         }
       `}</style>
 
       <div className="container">
-        <div className="header">
-          <div className="title">Subscribe {data.label}</div>
-          <Link className="back" to="/pricing">← Back to Pricing</Link>
-        </div>
+        <Link to="/pricing" className="back-link">
+          ← Back to Pricing
+        </Link>
 
-        <div className="card">
-          <div>
-            <div className="section-title">Payment Summary</div>
-            <div className="summary">
-              <div className="summary-row"><span>Plan</span><span>{data.label}</span></div>
-              <div className="summary-row"><span>Amount</span><span>₹{data.amount} / month</span></div>
+        <div className="payment-card">
+          <div className="plan-badge">{data.label} Plan</div>
+          <div className="amount-display">{getCurrencySymbol(settings.currency)}{data.amount}</div>
+          <div className="amount-sub">per month</div>
+
+          <div className="qr-section">
+            <div className="qr-title">Scan QR Code to Pay</div>
+            <div className="qr-image-wrapper">
+              <img 
+                src="/qr-placeholder.jpg" 
+                alt="UPI QR Code" 
+                width="200" 
+                height="200"
+                style={{ display: 'block' }}
+              />
             </div>
-            <div className="section-title">Pay via UPI ID</div>
-            <div className="upi-box">
-              <div className="upi-id">{data.upiId}</div>
-              <button
-                className="copy-btn"
-                onClick={() => navigator.clipboard && navigator.clipboard.writeText(data.upiId)}
-              >
-                Copy UPI
-              </button>
+            <div className="upi-id-display">
+              ID: {data.upiId}
             </div>
-            <a className="pay-btn" href={data.intent}>Pay via UPI App</a>
-            <div className="note">UPI supported apps will open on mobile.</div>
           </div>
-          <div>
-            <div className="section-title">Scan QR to Pay</div>
-            <div className="qr-wrap">
-              <img src="/qr-placeholder.jpg" alt="UPI QR" width="200" height="200" />
+
+          <button 
+            className="done-btn"
+            onClick={handlePaymentDone}
+            disabled={loading}
+          >
+            {loading ? 'Verifying...' : 'I have completed the payment'}
+          </button>
+
+          {message && (
+            <div className={`status-msg ${message.includes('failed') ? 'msg-error' : 'msg-info'}`}>
+              {message}
+            </div>
+          )}
+
+          <div className="steps">
+            <div className="step-item">
+              <span className="step-num">1</span>
+              <span>Open any UPI App (GPay, PhonePe, Paytm, etc.)</span>
+            </div>
+            <div className="step-item">
+              <span className="step-num">2</span>
+              <span>Scan the QR code shown above</span>
+            </div>
+            <div className="step-item">
+              <span className="step-num">3</span>
+              <span>Complete the payment of {getCurrencySymbol(settings.currency)}{data.amount}</span>
+            </div>
+            <div className="step-item">
+              <span className="step-num">4</span>
+              <span>Click "I have completed the payment" button</span>
             </div>
           </div>
         </div>

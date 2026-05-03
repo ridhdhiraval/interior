@@ -56,7 +56,7 @@ export default function App() {
         {/* 🔐 ADMIN ROUTE */}
         <Route path="/admin/*" element={<AdminApp />} />
       </Routes>
-      {!isAdminRoute && <Footer />}
+      {!isAdminRoute && location.pathname !== '/manual-design' && <Footer />}
     </>
   )
 }

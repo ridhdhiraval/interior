@@ -25,7 +25,7 @@ const isAdmin = async (req, res, next) => {
 router.get('/users', auth, isAdmin, async (req, res) => {
     console.log('GET /api/admin/users request received');
     try {
-        const result = await db.query("SELECT id, name, email, role, status, created_at FROM users WHERE role = 'user' ORDER BY created_at DESC");
+        const result = await db.query("SELECT id, name, email, role, status, plan, created_at FROM users WHERE role = 'user' ORDER BY created_at DESC");
         console.log(`Found ${result.rows.length} users`);
         res.json(result.rows);
     } catch (err) {
@@ -155,13 +155,76 @@ router.put('/contacts/:id/resolve', auth, isAdmin, async (req, res) => {
 // @route   GET /api/admin/settings
 router.get('/settings', auth, isAdmin, async (req, res) => {
     try {
-        // Return dummy settings for now, can be stored in a 'settings' table later
-        res.json({
-            siteName: 'Interior Design',
-            supportEmail: 'support@interior.design',
-            currency: 'USD',
-            invoicePrefix: 'INT-'
+        const result = await db.query('SELECT key, value FROM global_settings');
+        const settings = {};
+        result.rows.forEach(row => {
+            settings[row.key] = row.value;
         });
+        
+        // Convert keys to camelCase for frontend if needed
+        const formattedSettings = {
+            siteName: settings.site_name || 'Iconic Interior',
+            supportEmail: settings.support_email || 'support@iconicinterior.com',
+            currency: settings.currency || 'INR',
+            invoicePrefix: settings.invoice_prefix || 'INT-'
+        };
+        
+        res.json(formattedSettings);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// @route   POST /api/admin/settings
+router.post('/settings', auth, isAdmin, async (req, res) => {
+    try {
+        const { siteName, supportEmail, currency, invoicePrefix } = req.body;
+        
+        const settingsToUpdate = [
+            ['site_name', siteName],
+            ['support_email', supportEmail],
+            ['currency', currency],
+            ['invoice_prefix', invoicePrefix]
+        ];
+
+        for (const [key, value] of settingsToUpdate) {
+            if (value !== undefined) {
+                await db.query(
+                    'INSERT INTO global_settings (key, value, updated_at) VALUES ($1, $2, CURRENT_TIMESTAMP) ON CONFLICT (key) DO UPDATE SET value = $2, updated_at = CURRENT_TIMESTAMP',
+                    [key, value]
+                );
+            }
+        }
+
+        res.json({ message: 'Settings updated successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// @route   GET /api/admin/plans
+router.get('/plans', auth, isAdmin, async (req, res) => {
+    try {
+        const result = await db.query('SELECT plan_name as name, monthly_price as monthly, yearly_price as yearly FROM plan_details ORDER BY name');
+        res.json(result.rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// @route   POST /api/admin/plans
+router.post('/plans', auth, isAdmin, async (req, res) => {
+    try {
+        const { plans } = req.body; // Array of { name, monthly, yearly }
+        
+        for (const plan of plans) {
+            await db.query(
+                'INSERT INTO plan_details (plan_name, monthly_price, yearly_price, updated_at) VALUES ($1, $2, $3, CURRENT_TIMESTAMP) ON CONFLICT (plan_name) DO UPDATE SET monthly_price = $2, yearly_price = $3, updated_at = CURRENT_TIMESTAMP',
+                [plan.name, plan.monthly, plan.yearly]
+            );
+        }
+
+        res.json({ message: 'Plans updated successfully' });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -177,6 +240,17 @@ router.post('/notify-user', auth, isAdmin, async (req, res) => {
             console.log('Error: Notification text missing');
             return res.status(400).json({ error: 'Notification text is required' });
         }
+
+        // Ensure table exists (safeguard)
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS user_notifications (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+                message TEXT NOT NULL,
+                is_read BOOLEAN DEFAULT FALSE,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
 
         if (userId === 'all') {
             console.log('Sending notification to all users');
@@ -209,11 +283,46 @@ router.get('/notifications', auth, isAdmin, async (req, res) => {
     }
 });
 
-// @route   PUT /api/admin/notifications/:id
-router.put('/notifications/:id', auth, isAdmin, async (req, res) => {
+// @route   GET /api/admin/designs
+router.get('/designs', auth, isAdmin, async (req, res) => {
     try {
-        const result = await db.query('UPDATE admin_notifications SET is_read = TRUE WHERE id = $1 RETURNING *', [req.params.id]);
-        res.json(result.rows[0]);
+        const result = await db.query(`
+            SELECT d.*, u.name as user_name, u.email as user_email 
+            FROM designs d 
+            JOIN users u ON d.user_id = u.id 
+            ORDER BY d.created_at DESC
+        `);
+        res.json(result.rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// @route   DELETE /api/admin/designs/:id
+router.delete('/designs/:id', auth, isAdmin, async (req, res) => {
+    try {
+        await db.query('DELETE FROM designs WHERE id = $1', [req.params.id]);
+        res.json({ message: 'Design deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// @route   DELETE /api/admin/notifications/:id
+router.delete('/notifications/:id', auth, isAdmin, async (req, res) => {
+    try {
+        await db.query('DELETE FROM admin_notifications WHERE id = $1', [req.params.id]);
+        res.json({ message: 'Notification deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// @route   PUT /api/admin/notifications/:id/read
+router.put('/notifications/:id/read', auth, isAdmin, async (req, res) => {
+    try {
+        await db.query('UPDATE admin_notifications SET is_read = TRUE WHERE id = $1', [req.params.id]);
+        res.json({ message: 'Notification marked as read' });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

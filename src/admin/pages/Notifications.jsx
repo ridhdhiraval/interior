@@ -35,12 +35,14 @@ export default function Notifications() {
   const markRead = async (id) => {
     try {
       const token = localStorage.getItem('token')
-      await axios.put(`http://localhost:5001/api/admin/notifications/${id}`, {}, {
+      const res = await axios.put(`http://localhost:5001/api/admin/notifications/${id}/read`, {}, {
         headers: { 'x-auth-token': token }
       })
+      console.log('Mark read response:', res.data);
       setNotifications(notifications.map(n => n.id === id ? { ...n, is_read: true } : n))
     } catch (err) {
-      alert('Failed to update notification')
+      console.error('Mark read error details:', err.response?.data || err.message);
+      alert(`Failed to update notification: ${err.response?.data?.error || err.message}`)
     }
   }
 
@@ -49,19 +51,35 @@ export default function Notifications() {
     setSending(true)
     try {
       const token = localStorage.getItem('token')
-      await axios.post('http://localhost:5001/api/admin/notify-user', notifyData, {
+      const res = await axios.post('http://localhost:5001/api/admin/notify-user', notifyData, {
         headers: { 'x-auth-token': token }
       })
+      console.log('Notification response:', res.data);
       alert('Notification sent to user(s)!')
       setNotifyData({ ...notifyData, text: '' })
     } catch (err) {
-      alert('Failed to send notification')
+      console.error('Notification error details:', err.response?.data || err.message);
+      alert(`Failed to send notification: ${err.response?.data?.error || err.message}`)
     } finally {
       setSending(false)
     }
   }
 
   if (loading) return <div style={{ padding: '40px', textAlign: 'center' }}>Loading Notifications...</div>
+
+  const deleteAlert = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this alert?')) return
+    try {
+      const token = localStorage.getItem('token')
+      await axios.delete(`http://localhost:5001/api/admin/notifications/${id}`, {
+        headers: { 'x-auth-token': token }
+      })
+      setNotifications(prev => prev.filter(a => a.id !== id))
+    } catch (err) {
+      console.error('Failed to delete alert', err)
+      alert('Failed to delete alert')
+    }
+  }
 
   return (
     <div className="admin-notifications">
@@ -80,8 +98,9 @@ export default function Notifications() {
         .notif-item { 
           display: flex; justify-content: space-between; align-items: center; 
           padding: 16px 20px; border-radius: 14px; border: 1px solid #f1f5f9; background: #fff;
-          transition: transform 0.2s;
+          transition: transform 0.2s, box-shadow 0.2s;
         }
+        .notif-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .notif-item.unread { border-left: 4px solid #0b2a4a; background: #f8fbff; }
         .notif-content { flex: 1; }
         .notif-msg { display: block; font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 4px; }
@@ -92,6 +111,13 @@ export default function Notifications() {
           font-size: 12px; font-weight: 600; cursor: pointer; 
         }
         .btn-read:hover { background: #e2e8f0; }
+
+        .btn-delete {
+          background: #fff; color: #ef4444; border: 1px solid #fee2e2; padding: 6px 12px; 
+          border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+          margin-left: 8px;
+        }
+        .btn-delete:hover { background: #fee2e2; }
         
         .badge-new { 
           background: #eff6ff; color: #2563eb; font-size: 10px; font-weight: 700; 
@@ -143,6 +169,7 @@ export default function Notifications() {
                 {!n.is_read && (
                   <button className="btn-read" onClick={() => markRead(n.id)}>Mark Read</button>
                 )}
+                <button className="btn-delete" onClick={() => deleteAlert(n.id)}>Remove</button>
               </div>
             ))
           )}

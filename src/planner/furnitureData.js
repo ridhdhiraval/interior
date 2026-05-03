@@ -14,467 +14,207 @@ export const furnitureCategories = [
 
 export const furnitureItems = {
   living: [
-    { id: 'sofa_01', name: 'Modern Sofa', image: 'https://cdn-icons-png.flaticon.com/512/2558/2558062.png', width: 200, depth: 90, color: '#556b2f' },
-    { id: 'sofa_02', name: 'L-Shape Sofa', image: 'https://cdn-icons-png.flaticon.com/512/2558/2558062.png', width: 250, depth: 150, color: '#8b4513' },
-    { id: 'tv_unit', name: 'TV Unit', image: 'https://cdn-icons-png.flaticon.com/512/5998/5998781.png', width: 180, depth: 40, color: '#333333' },
-    { id: 'coffee_table', name: 'Coffee Table', image: 'https://cdn-icons-png.flaticon.com/512/1663/1663959.png', width: 100, depth: 60, color: '#8b4513' },
+    {
+      id: 'sofa_01',
+      name: 'Modern Sofa',
+      image: 'https://cdn-icons-png.flaticon.com/512/2558/2558062.png',
+      width: 200, depth: 90, color: '#556b2f',
+      model: 'https://vazxmixjsiawhamofees.supabase.co/storage/v1/object/public/models/couch/model.gltf',
+      modelScale: [0.01, 0.01, 0.01],
+      plan: 'BASIC'
+    },
+    {
+      id: 'sofa_02',
+      name: 'L-Shape Sofa',
+      image: 'https://cdn-icons-png.flaticon.com/512/2558/2558062.png',
+      width: 250, depth: 150, color: '#8b4513',
+      model: 'https://vazxmixjsiawhamofees.supabase.co/storage/v1/object/public/models/sofa/model.gltf',
+      modelScale: [0.01, 0.01, 0.01],
+      plan: 'STANDARD'
+    },
+    {
+      id: 'tv_unit',
+      name: 'TV Unit',
+      image: 'https://cdn-icons-png.flaticon.com/512/5998/5998781.png',
+      width: 180, depth: 40, color: '#333333',
+      model: 'https://vazxmixjsiawhamofees.supabase.co/storage/v1/object/public/models/tv-set/model.gltf',
+      modelScale: [0.01, 0.01, 0.01],
+      plan: 'BASIC'
+    },
+    {
+      id: 'coffee_table',
+      name: 'Coffee Table',
+      image: 'https://cdn-icons-png.flaticon.com/512/1663/1663959.png',
+      width: 100, depth: 60, color: '#8b4513',
+      model: 'https://vazxmixjsiawhamofees.supabase.co/storage/v1/object/public/models/low-table-projection/model.gltf',
+      modelScale: [0.01, 0.01, 0.01],
+      plan: 'PREMIUM'
+    },
   ],
   bedroom: [
-    { id: 'bed_king', name: 'King Bed', image: 'https://cdn-icons-png.flaticon.com/512/3030/3030336.png', width: 180, depth: 200, color: '#f5f5dc' },
-    { id: 'bed_single', name: 'Single Bed', image: 'https://cdn-icons-png.flaticon.com/512/3030/3030336.png', width: 90, depth: 190, color: '#f5f5dc' },
-    { id: 'wardrobe', name: 'Wardrobe', image: 'https://cdn-icons-png.flaticon.com/512/114/114828.png', width: 120, depth: 60, color: '#8b4513' },
-    { id: 'bedside_table', name: 'Bedside Table', image: 'https://cdn-icons-png.flaticon.com/512/5029/5029242.png', width: 45, depth: 40, color: '#a0522d' },
+    {
+      id: 'bed_king',
+      name: 'King Bed',
+      image: 'https://cdn-icons-png.flaticon.com/512/3030/3030336.png',
+      width: 180, depth: 200, color: '#f5f5dc',
+      model: 'https://vazxmixjsiawhamofees.supabase.co/storage/v1/object/public/models/bed-double/model.gltf',
+      modelScale: [0.01, 0.01, 0.01],
+      plan: 'PREMIUM'
+    },
+    {
+      id: 'bed_single',
+      name: 'Single Bed',
+      image: 'https://cdn-icons-png.flaticon.com/512/3030/3030336.png',
+      width: 90, depth: 190, color: '#f5f5dc',
+      model: 'https://vazxmixjsiawhamofees.supabase.co/storage/v1/object/public/models/bed-single/model.gltf',
+      modelScale: [0.01, 0.01, 0.01],
+      plan: 'BASIC'
+    },
+    {
+      id: 'wardrobe',
+      name: 'Modern Wardrobe',
+      image: '/3D/icon/wardrobe/wardrobe.png',
+      model: '/3D/model/wardrobe/wardrobe.fbx',
+      width: 120, depth: 60, height: 210,
+      color: '#5d4037',
+      modelScale: [0.07, 0.07, 0.07],
+      plan: 'STANDARD'
+    },
+    { id: 'bedside_table', name: 'Bedside Table', image: 'https://cdn-icons-png.flaticon.com/512/5029/5029242.png', width: 45, depth: 40, color: '#a0522d', plan: 'BASIC' },
   ],
   kitchen: [
-    { id: 'table_rect', name: 'Dining Table', image: 'https://cdn-icons-png.flaticon.com/512/1663/1663959.png', width: 160, depth: 90, color: '#deb887' },
-    { id: 'chair', name: 'Chair', image: 'https://cdn-icons-png.flaticon.com/512/5029/5029242.png', width: 50, depth: 50, color: '#a0522d' },
-    { id: 'kitchen_cabinet', name: 'Cabinet', image: 'https://cdn-icons-png.flaticon.com/512/5998/5998781.png', width: 60, depth: 60, color: '#ffffff' },
+    { id: 'table_rect', name: 'Dining Table', image: 'https://cdn-icons-png.flaticon.com/512/1663/1663959.png', width: 160, depth: 90, color: '#deb887', plan: 'BASIC' },
+    { id: 'fridge', name: 'Fridge', image: '/3D/icon/kitchen%20applience/fridge.png', model: '/3D/model/kitchen%20applience/fridge1.fbx', type: 'FURNITURE', width: 70, depth: 70, height: 180, elevation: 0, modelScale: [0.01, 0.01, 0.01], plan: 'STANDARD' },
   ],
   bathroom: [
-    { id: 'bathtub', name: 'Bathtub', image: 'https://cdn-icons-png.flaticon.com/512/2200/2200547.png', width: 170, depth: 75, color: '#ffffff' },
-    { id: 'toilet', name: 'Toilet', image: 'https://cdn-icons-png.flaticon.com/512/2200/2200561.png', width: 40, depth: 65, color: '#ffffff' },
-    { id: 'sink', name: 'Sink', image: 'https://cdn-icons-png.flaticon.com/512/2200/2200561.png', width: 60, depth: 50, color: '#ffffff' },
+    { id: 'bathtub1', name: 'Bathtub 1', image: '/3D/icon/bathroom/bathtub1.png', model: '/3D/model/bathroom/bathtub.fbx', type: 'FURNITURE', width: 170, depth: 75, height: 60, elevation: 0, modelScale: [0.03, 0.03, 0.03], plan: 'PREMIUM' },
+    { id: 'sink1', name: 'Sink 1', image: '/3D/icon/bathroom/sink1.png', model: '/3D/model/bathroom/sink1.fbx', type: 'FURNITURE', width: 60, depth: 50, height: 80, elevation: 0, modelScale: [0.09, 0.09, 0.09], plan: 'BASIC' },
+    { id: 'sink2', name: 'Sink 2', image: '/3D/icon/bathroom/sink2.png', model: '/3D/model/bathroom/sink2.fbx', type: 'FURNITURE', width: 60, depth: 50, height: 80, elevation: 0, modelScale: [0.01, 0.01, 0.01], plan: 'STANDARD' },
+    { id: 'washbasin', name: 'Washbasin', image: '/3D/icon/bathroom/washbasin.png', model: '/3D/model/bathroom/washbasin.fbx', type: 'FURNITURE', width: 80, depth: 50, height: 85, elevation: 0, modelScale: [0.01, 0.01, 0.01], plan: 'BASIC' },
+    { id: 'toilet', name: 'Toilet', image: '/3D/icon/bathroom/toilet.png', model: '/3D/model/bathroom/toilet.fbx', type: 'FURNITURE', width: 40, depth: 65, height: 75, elevation: 0, modelScale: [0.01, 0.01, 0.01], plan: 'BASIC' }
   ],
   office: [
     { id: 'desk', name: 'Office Desk', image: 'https://cdn-icons-png.flaticon.com/512/2558/2558062.png', width: 140, depth: 70, color: '#8b4513' },
     { id: 'office_chair', name: 'Office Chair', image: 'https://cdn-icons-png.flaticon.com/512/5029/5029242.png', width: 60, depth: 60, color: '#333333' },
   ],
   lighting: [
-    { id: 'lamp_floor', name: 'Floor Lamp', image: 'https://cdn-icons-png.flaticon.com/512/2954/2954868.png', width: 40, depth: 40, color: '#ffd700' },
-    { id: 'lamp_table', name: 'Table Lamp', image: 'https://cdn-icons-png.flaticon.com/512/2954/2954868.png', width: 25, depth: 25, color: '#ffd700' },
+    { id: 'lamp1', name: 'Lamp 1', image: '/3D/icon/lights/lamp1.png', model: '/3D/model/lights/lamp1.fbx', type: 'FURNITURE', width: 40, depth: 40, height: 160, elevation: 0, modelScale: [0.01, 0.01, 0.01], modelRotation: [-Math.PI / 2, 0, 0] },
   ],
   plants: [
     { id: 'plant_large', name: 'Large Plant', image: 'https://cdn-icons-png.flaticon.com/512/628/628324.png', width: 50, depth: 50, color: '#228b22' },
     { id: 'plant_small', name: 'Small Plant', image: 'https://cdn-icons-png.flaticon.com/512/628/628324.png', width: 25, depth: 25, color: '#228b22' },
   ],
   rugs: [
-    { id: 'rug_rect', name: 'Rectangular Rug', image: 'https://cdn-icons-png.flaticon.com/512/2558/2558062.png', width: 200, depth: 150, color: '#cd853f' },
-    { id: 'rug_round', name: 'Round Rug', image: 'https://cdn-icons-png.flaticon.com/512/2558/2558062.png', width: 150, depth: 150, color: '#cd853f' },
+    { id: 'carpet_classic', name: 'Classic Rug', image: '/carpet_round_classic.png', texture: '/carpet_round_classic.png', model: '/3D/model/carpet/carpet.fbx', type: 'FURNITURE', width: 800, depth: 1200, height: 1, elevation: 0, modelScale: [0.03, 0.03, 0.03] },
+    { id: 'carpet_floral', name: 'Floral Rug', image: '/carpet_round_floral.png', texture: '/carpet_round_floral.png', model: '/3D/model/carpet/carpet1.fbx', type: 'FURNITURE', width: 800, depth: 1200, height: 1, elevation: 0, modelScale: [0.03, 0.03, 0.03] },
+    { id: 'carpet_butterfly', name: 'Butterfly Rug', image: '/carpet_round_butterfly.png', texture: '/carpet_round_butterfly.png', model: '/3D/model/carpet/carpet.fbx', type: 'FURNITURE', width: 800, depth: 1200, height: 1, elevation: 0, modelScale: [0.03, 0.03, 0.03] },
   ]
 };
 
 // --- NEW CATALOG API STRUCTURE ---
-// Scalable structure to replace hardcoded nested menus in ManualDesign.jsx
-
 export const catalogCategories = [
-  { id: 'construction', name: 'Construction', image: './Construction.png' },
-  { id: 'living', name: 'Furniture', image: './furniture.png' },
-  { id: 'appliances', name: 'Electric appliances', image: './electric.png' },
-  { id: 'decor', name: 'Decor', image: './decor.png' },
+  { id: 'construction', name: 'Construction', image: '/Construction.png' },
+  { id: 'living', name: 'Furniture', image: '/furniture.png' },
+  { id: 'appliances', name: 'Electric appliances', image: '/Household_appliances.png' },
+  { id: 'decor', name: 'Decor', image: '/decor.png' },
 ];
 
 export const catalogSubCategories = {
   construction: [
-    { id: 'windows', name: 'Windows', image: './Windows.png' },
-    { id: 'doors', name: 'Doors', image: './Doors.png' },
-    { id: 'stairs', name: 'Stairs', image: './Stairs.png' },
-    { id: 'fireplaces', name: 'Fireplaces', image: './Fireplaces.png' },
-    { id: 'pillars', name: 'Pillars and beams', image: './Pillars.png' },
-    { id: 'partitions', name: 'Partitions', image: './Partitions.png' },
-    { id: 'wall_panels', name: 'Wall panels', image: './WallPanels.png' },
-    { id: 'fences', name: 'Fences', image: './Fences.png' },
-    { id: 'roof', name: 'Roof', image: './Roof.png' },
+    { id: 'windows', name: 'Windows', image: '/Windows.png' },
+    { id: 'doors', name: 'Doors', image: '/Doors.png' },
+    { id: 'stairs', name: 'Stairs', image: '/Stairs.png' },
+    { id: 'fireplaces', name: 'Fireplaces', image: '/Fireplaces.png' },
   ],
   living: [
-    { id: 'upholstered', name: 'Upholstered furniture', image: './Upholstered.png' },
-    { id: 'chairs_benches', name: 'Chairs, benches', image: './Chairs.png' },
-    { id: 'tables', name: 'Tables', image: './Tables.png' },
-    { id: 'beds', name: 'Beds', image: './Beds.png' },
-    { id: 'cabinets_shelves', name: 'Cabinets & Shelves', image: './Cabinets.png' },
-    { id: 'kitchen_furn', name: 'Kitchen', image: './KitchenFurn.png' },
-    { id: 'bathroom_furn', name: 'Bathroom', image: './BathroomFurn.png' },
-  ],
-  upholstered: [
-    { id: 'straight_sofas', name: 'Straight', image: './Straight.png' },
-    { id: 'corner_sofas', name: 'Corner', image: './Corner.png' },
-    { id: 'modular_sofas', name: 'Modular', image: './Modular.png' },
-    { id: 'armchairs', name: 'Armchairs', image: './Armchairs.png' },
-    { id: 'ottomans', name: 'Ottomans', image: './Ottomans.png' }
-  ],
-  chairs_benches: [
-    { id: 'chairs', name: 'Chairs', image: './Chairs.png' },
-    { id: 'stools', name: 'Stools', image: './Stools.png' }
-  ],
-  tables: [
-    { id: 'dining_tables', name: 'Dining tables', image: './Dining_tables.png' },
-    { id: 'office_desks', name: 'Office desks', image: './Office_desks.png' }
-  ],
-  beds: [
-    { id: 'single_beds', name: 'Single beds', image: './Single_beds.png' },
-    { id: 'double_beds', name: 'Double, queen, king beds', image: './Double_beds.png' },
-    { id: 'children_beds', name: "Children's beds", image: './Children_beds.png' }
-  ],
-  cabinets_shelves: [
-    { id: 'cabinets_closets', name: 'Cabinets, closets, wardrobes', image: './Cabinets.png' },
-    { id: 'dressers_consoles', name: 'Dressers, Consoles, vanities', image: './Dressers.png' },
-    { id: 'shelves', name: 'Shelves', image: './Shelves.png' },
-    { id: 'stands', name: 'Stands', image: './Stands.png' },
-    { id: 'tv_stands', name: 'TV stands', image: './TV_stands.png' }
-  ],
-  kitchen_furn: [
-    { id: 'wall_cabinets', name: 'Wall cabinets', image: './Wall_cabinets.png' },
-    { id: 'base_pantry_cabinets', name: 'Base & pantry cabinets', image: './Base_pantry_cabinets.png' }
-  ],
-  bathroom_furn: [
-    { id: 'baths_showers', name: 'Baths and showers', image: './Baths_showers.png' },
-    { id: 'toilets_bidet', name: 'Toilets & bidet', image: './Toilets_bidet.png' },
-    { id: 'washbasins', name: 'Washbasins', image: './Washbasins.png' },
-    { id: 'bathroom_storage_mirrors', name: 'Bathroom storage, mirrors', image: './Bathroom_storage_mirrors.png' },
-    { id: 'bathroom_accessories', name: 'Bathroom accessories', image: './Bathroom_accessories.png' }
+    { id: 'upholstered', name: 'Upholstered furniture', image: '/Upholstered.png' },
+    { id: 'chairs', name: 'Chairs, benches', image: '/Chairs.png' },
+    { id: 'tables', name: 'Tables', image: '/Tables.png' },
+    { id: 'beds', name: 'Beds', image: '/Beds.png' },
+    { id: 'cabinets', name: 'Cabinets & Shelves', image: '/Cabinets.png' },
+    { id: 'kitchen_furn', name: 'Kitchen', image: '/KitchenFurn.png' },
+    { id: 'bathroom_furn', name: 'Bathroom', image: '/BathroomFurn.png' },
   ],
   appliances: [
-    { id: 'household_appliances', name: 'Household appliances', image: './Household_appliances.png' },
-    { id: 'tv_video_audio', name: 'TV / Video / Audio', image: './TV_Video_Audio.png' },
-    { id: 'lighting_appliances', name: 'Lighting', image: './Lighting_appliances.png' },
-    { id: 'kitchen_appliances', name: 'Kitchen Appliances', image: './Kitchen_Appliances.png' },
-    { id: 'climate', name: 'Climate', image: './Climate.png' }
+    { id: 'household_appl', name: 'Household appliances', image: '/Household_appliances.png' },
+    { id: 'tv_audio', name: 'TV / Video / Audio', image: '/TV_Video_Audio.png' },
+    { id: 'lighting', name: 'Lighting', image: '/Lighting_appliances.png' },
+    { id: 'kitchen_appl', name: 'Kitchen Appliances', image: '/Kitchen_Appliances.png' },
+    { id: 'climate', name: 'Climate', image: '/Climate.png' },
   ],
   decor: [
-    { id: 'carpets_rugs', name: 'Carpets & Rugs', image: './Carpets_Rugs.png' },
-    { id: 'vases', name: 'Vases', image: './Vases.png' },
-    { id: 'decor_plants', name: 'Plants', image: './Plants.png' },
-    { id: 'window_decor', name: 'Window decor', image: './Window_decor.png' },
-  ]
+    { id: 'carpets_rugs', name: 'Carpets & Rugs', image: '/Carpets_Rugs.png' },
+    { id: 'plants', name: 'Plants', image: '/Plants.png' },
+  ],
 };
 
 export const catalogItems = {
   windows: [
-    { id: 'win_3sec', name: 'Three sections window', image: './win_3sec.png', isPremium: false },
-    { id: 'win_basic1', name: 'Window', image: './win_basic1.png', isPremium: false },
-    { id: 'win_arched1', name: 'Arched window', image: './win_arched1.png', isPremium: false },
-    { id: 'win_arched2', name: 'Arched window', image: './win_arched2.png', isPremium: false },
-    { id: 'win_grid1', name: 'Window', image: './win_grid1.png', isPremium: false },
-    { id: 'win_round', name: 'Round window', image: './win_round.png', isPremium: false },
-    { id: 'win_grid2', name: 'Window', image: './win_grid2.png', isPremium: false },
-    { id: 'win_arc', name: 'Arc window', image: './win_arc.png', isPremium: false },
-    { id: 'win_pano1', name: 'Panoramic window', image: './win_pano1.png', isPremium: true },
-    { id: 'win_pano2', name: 'Panoramic window', image: './win_pano2.png', isPremium: true },
-    { id: 'win_basic2', name: 'Window', image: './win_basic2.png', isPremium: true },
-    { id: 'win_pano3', name: 'Panoramic window', image: './win_pano3.png', isPremium: true },
-    { id: 'win_horiz', name: 'Window horizontal', image: './win_horiz.png', isPremium: true },
-    { id: 'win_pano4', name: 'Panoramic window', image: './win_pano4.png', isPremium: true },
-    { id: 'win_2sec', name: 'Two sections window', image: './win_2sec.png', isPremium: true },
+    { id: 'window1', name: 'Window 1', image: '/3D/icon/window/window1.png', model: '/3D/model/window/window1.fbx', type: 'WINDOW', width: 100, height: 120, elevation: 100, modelScale: [0.01, 0.01, 0.01] },
+    { id: 'window2', name: 'Window 2', image: '/3D/icon/window/window2.png', model: '/3D/model/window/window2.fbx', type: 'WINDOW', width: 100, height: 120, elevation: 100, modelScale: [0.01, 0.01, 0.01], modelRotation: [0, Math.PI / 2, 0] },
+    { id: 'window3', name: 'Window 3', image: '/3D/icon/window/window3.png', model: '/3D/model/window/window3.fbx', type: 'WINDOW', width: 100, height: 120, elevation: 100, modelScale: [0.01, 0.01, 0.01] }
   ],
   doors: [
-    { id: 'door_swing', name: 'Swing doors', image: './Swing_doors.png', isPremium: false },
-    { id: 'door_sliding', name: 'Sliding & accordion doors', image: './Sliding_doors.png', isPremium: false },
+    { id: 'door1', name: 'Door 1', image: '/3D/icon/door/door1.png', model: '/3D/model/door/door1.fbx', type: 'DOOR', width: 90, height: 210, elevation: 0, modelScale: [0.01, 0.01, 0.01], modelRotation: [0, Math.PI / 2, 0] },
+
+    { id: 'door3', name: 'Door 3', image: '/3D/icon/door/door3.png', model: '/3D/model/door/door3.fbx', type: 'DOOR', width: 90, height: 210, elevation: 0, modelScale: [0.01, 0.01, 0.01], isArched: true, archDrop: 40 }
   ],
   stairs: [
-    { id: 'stair_ladder', name: 'Ladder', image: './stair_ladder.png', isPremium: false },
-    { id: 'stair_basic1', name: 'Staircase', image: './stair_basic1.png', isPremium: false },
-    { id: 'stair_wood1', name: 'Staircase', image: './stair_wood1.png', isPremium: true },
-    { id: 'stair_float1', name: 'Staircase', image: './stair_float1.png', isPremium: true },
-    { id: 'stair_spiral_black', name: 'Staircase', image: './stair_spiral_black.png', isPremium: false },
-    { id: 'stair_wood_norail', name: 'Staircase', image: './stair_wood_norail.png', isPremium: true },
-    { id: 'stair_down', name: 'Stairs down', image: './stair_down.png', isPremium: true },
-    { id: 'stair_spiral_white', name: 'Staircase', image: './stair_spiral_white.png', isPremium: true },
+    { id: 'stair1', name: 'Stairs 1', image: '/3D/icon/stairs/stair1.png', model: '/3D/model/stairs/stair1.fbx', type: 'FURNITURE', width: 150, depth: 150, height: 300, elevation: 0, modelScale: [0.01, 0.01, 0.01] }
   ],
   fireplaces: [
-    { id: 'fp_stone_grey', name: 'Fireplace', image: './fp_stone_grey.png', isPremium: false },
-    { id: 'fp_wood_classic1', name: 'Fireplace', image: './fp_wood_classic1.png', isPremium: false },
-    { id: 'fp_brick_rustic', name: 'Fireplace', image: './fp_brick_rustic.png', isPremium: false },
-    { id: 'fp_modern_hanging', name: 'Fireplace', image: './fp_modern_hanging.png', isPremium: false },
-    { id: 'fp_modern_white1', name: 'Fireplace', image: './fp_modern_white1.png', isPremium: true },
-    { id: 'fp_modern_white2', name: 'Fireplace', image: './fp_modern_white2.png', isPremium: true },
-    { id: 'fp_stove_black', name: 'Fireplace', image: './fp_stove_black.png', isPremium: true },
-    { id: 'fp_black_brick_in', name: 'Fireplace', image: './fp_black_brick_in.png', isPremium: true },
-    { id: 'fp_wood_classic2', name: 'Fireplace', image: './fp_wood_classic2.png', isPremium: true },
   ],
-  pillars: [
-    { id: 'beam_square', name: 'Square beam', image: './beam_square.png', isPremium: false },
-    { id: 'pilaster_flat', name: 'Pilaster', image: './beam_round.png', isPremium: false },
-    { id: 'pilaster_round', name: 'Pilaster', image: './pilaster_round.png', isPremium: false },
-    { id: 'pillar_thick', name: 'Pillar', image: './pillar_thick.png', isPremium: true },
-    { id: 'pilaster_fancy', name: 'Pilaster', image: './pilaster_fancy.png', isPremium: true },
-    { id: 'pillar_style1', name: 'Pillar', image: './pillar_style1.png', isPremium: true },
-    { id: 'pillar_style2', name: 'Pillar', image: './pillar_style2.png', isPremium: true },
-    { id: 'pillar_half', name: 'Pillar', image: './pillar_half.png', isPremium: true },
-  ],
-  partitions: [
-    { id: 'part_glass1', name: 'Glass partition', image: './part_glass1.png', isPremium: false },
-    { id: 'part_glass2', name: 'Glass partition', image: './part_glass2.png', isPremium: false },
-    { id: 'part_glass_grid1', name: 'Glass partition', image: './part_glass_grid1.png', isPremium: false },
-    { id: 'part_glass_grid2', name: 'Glass partition', image: './part_glass_grid2.png', isPremium: true },
-    { id: 'part_glass_block', name: 'Glass block', image: './part_glass_block.png', isPremium: true },
-    { id: 'part_glass3', name: 'Glass partition', image: './part_glass3.png', isPremium: true },
-    { id: 'part_glass4', name: 'Glass partition', image: './part_glass4.png', isPremium: true },
-    { id: 'part_glass5', name: 'Glass partition', image: './part_glass5.png', isPremium: true },
-    { id: 'part_glass6', name: 'Glass partition', image: './part_glass6.png', isPremium: true },
-    { id: 'part_glass7', name: 'Glass partition', image: './part_glass7.png', isPremium: true },
-  ],
-  wall_panels: [
-    { id: 'panel_slats_dark', name: 'Decorative slats', image: './panel_slats_dark.png', isPremium: false },
-    { id: 'panel_slats_light', name: 'Decorative slats', image: './panel_slats_light.png', isPremium: false },
-    { id: 'panel_slat_dark', name: 'Decorative slat', image: './panel_slat_dark.png', isPremium: true },
-    { id: 'panel_slat_light', name: 'Decorative slat', image: './panel_slat_light.png', isPremium: true },
-    { id: 'panel_deco_light1', name: 'Decorative panel', image: './panel_deco_light1.png', isPremium: true },
-    { id: 'panel_plaster_circle', name: 'Plaster panel', image: './panel_plaster_circle.png', isPremium: true },
-    { id: 'panel_plaster_curve1', name: 'Plaster panel', image: './panel_plaster_curve1.png', isPremium: true },
-    { id: 'panel_plaster_curve2', name: 'Plaster panel', image: './panel_plaster_curve2.png', isPremium: true },
-    { id: 'panel_plaster_wave', name: 'Plaster panel', image: './panel_plaster_wave.png', isPremium: true },
-    { id: 'panel_wood_paneled1', name: 'Wooden panel', image: './panel_wood_paneled1.png', isPremium: true },
-  ],
-  fences: [
-    { id: 'fence_wood_tall', name: 'Fence', image: './fence_wood_tall.png', isPremium: false },
-    { id: 'fence_wood_wide', name: 'Fence', image: './fence_wood_wide.png', isPremium: false },
-    { id: 'fence_metal_black', name: 'Fence', image: './fence_metal_black.png', isPremium: true },
-    { id: 'fence_wood_picket', name: 'Fence', image: './fence_wood_picket.png', isPremium: true },
-  ],
-  roof: [
-    { id: 'roof_gable1', name: 'Gable', image: './roof_gable1.png', isPremium: false },
-    { id: 'roof_mansard1', name: 'Mansard', image: './roof_mansard1.png', isPremium: false },
-    { id: 'roof_pyramid', name: 'Pyramid', image: './roof_pyramid.png', isPremium: true },
-    { id: 'roof_gambrel', name: 'Gambrel', image: './roof_gambrel.png', isPremium: true },
-    { id: 'roof_jerkinhead', name: 'Jerkinhead', image: './roof_jerkinhead.png', isPremium: true },
-  ],
-  straight_sofas: [
-    { id: 'sofa_straight_beige1', name: 'Sofa', image: './sofa_straight_beige1.png', isPremium: false },
-    { id: 'sofa_straight_beige2', name: 'Sofa', image: './sofa_straight_beige2.png', isPremium: false },
-    { id: 'sofa_straight_bw', name: 'Sofa', image: './sofa_straight_bw.png', isPremium: false },
-    { id: 'sofa_straight_grey1', name: 'Sofa', image: './sofa_straight_grey1.png', isPremium: false },
-    { id: 'bench_seat_bw', name: 'Bench seat', image: './bench_seat_bw.png', isPremium: true },
-    { id: 'sofa_straight_grey2', name: 'Sofa', image: './sofa_straight_grey2.png', isPremium: true },
-    { id: 'sofa_wade_verona', name: 'Sofa WADE Verona', image: './sofa_wade_verona.png', isPremium: true },
-    { id: 'sofa_loft_straight', name: 'Loft sofa', image: './sofa_loft_straight.png', isPremium: true },
-  ],
-  corner_sofas: [
-    { id: 'sofa_corner_loft1', name: 'Loft sofa', image: './sofa_corner_loft1.png', isPremium: false },
-    { id: 'sofa_corner_lightgrey', name: 'Sofa', image: './sofa_corner_lightgrey.png', isPremium: false },
-    { id: 'sofa_palermo_beige', name: 'Palermo corner sofa', image: './sofa_palermo_beige.png', isPremium: false },
-    { id: 'sofa_corner_darkbeige', name: 'Sofa', image: './sofa_corner_darkbeige.png', isPremium: false },
-    { id: 'sofa_chicago_blue', name: 'Chicago corner sofa', image: './sofa_chicago_blue.png', isPremium: false },
-  ],
-  modular_sofas: [
-    { id: 'ontario_ottoman', name: "Sofa 'Ontario'", image: './ontario_ottoman.png', isPremium: false },
-    { id: 'ontario_corner', name: "Sofa 'Ontario'", image: './ontario_corner.png', isPremium: false },
-    { id: 'ontario_single', name: "Sofa 'Ontario'", image: './ontario_single.png', isPremium: false },
-    { id: 'ontario_table', name: 'Ontario', image: './ontario_table.png', isPremium: false },
-    { id: 'ontario_wide', name: 'Ontario', image: './ontario_wide.png', isPremium: true },
-  ],
-  armchairs: [
-    { id: 'armchair_classic1', name: 'Armchair', image: './armchair_classic1.png', isPremium: false },
-    { id: 'armchair_classic2', name: 'Armchair', image: './armchair_classic2.png', isPremium: false },
-    { id: 'armchair_blocky_grey', name: 'Armchair', image: './armchair_blocky_grey.png', isPremium: false },
-    { id: 'armchair_curved_brown', name: 'Armchair', image: './armchair_curved_brown.png', isPremium: false },
-    { id: 'armchair_thinlegs_grey', name: 'Armchair', image: './armchair_thinlegs_grey.png', isPremium: false },
-    { id: 'armchair_woodframe_grey', name: 'Armchair', image: './armchair_woodframe_grey.png', isPremium: false },
-  ],
-  ottomans: [
-    { id: 'ottoman_cube_beige', name: 'Ottoman', image: './ottoman_cube_beige.png', isPremium: false },
-    { id: 'ottoman_teal_tufted', name: 'Ottoman', image: './ottoman_teal_tufted.png', isPremium: false },
-    { id: 'ottoman_grey_square', name: 'Ottoman', image: './ottoman_grey_square.png', isPremium: false },
-    { id: 'ottoman_red_round', name: 'Ottoman', image: './ottoman_red_round.png', isPremium: false },
-    { id: 'ottoman_grey_double', name: 'Ottoman', image: './ottoman_grey_double.png', isPremium: false },
-    { id: 'ottoman_darkblue', name: 'Ottoman', image: './ottoman_darkblue.png', isPremium: false },
-    { id: 'ottoman_white_redtop', name: 'Ottoman', image: './ottoman_white_redtop.png', isPremium: true },
-    { id: 'ottoman_grey_legs', name: 'Ottoman', image: './ottoman_grey_legs.png', isPremium: true },
-    { id: 'ottoman_triconfort', name: 'Ottoman Triconfort Biarritz', image: './ottoman_triconfort.png', isPremium: true },
+  upholstered: [
+    { id: 'sofa1', name: 'Sofa 1 (New)', image: '/3D/icon/Upholstered%20furniture/sofa1.png', model: '/3D/model/Upholstered%20furniture/sofa1.fbx', type: 'FURNITURE', width: 200, depth: 90, height: 80, elevation: 0, modelScale: [0.3, 0.3, 0.3] },
+    { id: 'sofa2', name: 'Sofa 2', image: '/3D/icon/Upholstered%20furniture/sofa2.png', model: '/3D/model/Upholstered%20furniture/sofa2.fbx', type: 'FURNITURE', width: 200, depth: 90, height: 80, elevation: 0, modelScale: [0.01, 0.01, 0.01] }
   ],
   chairs: [
-    { id: 'chair_beige_1', name: 'Chair', image: './chair_beige_1.png', isPremium: false },
-    { id: 'chair_beige_2', name: 'Chair', image: './chair_beige_2.png', isPremium: false },
-    { id: 'chair_wood_green', name: 'Chair', image: './chair_wood_green.png', isPremium: false },
-    { id: 'chair_wood_stripe', name: 'Chair', image: './chair_wood_stripe.png', isPremium: false },
-    { id: 'chair_white_metal', name: 'Chair', image: './chair_white_metal.png', isPremium: true },
-    { id: 'chair_blue_wood', name: 'Chair', image: './chair_blue_wood.png', isPremium: true },
+    { id: 'chair1', name: 'Chair 1', image: '/3D/icon/chair/chair1.png', model: '/3D/model/chair/chair1.fbx', type: 'FURNITURE', width: 50, depth: 50, height: 90, elevation: 0, modelScale: [0.02, 0.02, 0.02] },
+    { id: 'chair2', name: 'New Chair 2', image: '/3D/icon/chair/chair2.png', model: '/3D/model/chair/chair2.fbx', type: 'FURNITURE', width: 50, depth: 50, height: 90, elevation: 0, modelScale: [0.02, 0.02, 0.02] }
   ],
-  stools: [
-    { id: 'stool_wood_simple', name: 'Stool', image: './stool_wood_simple.png', isPremium: false },
-    { id: 'stool_wood_blue', name: 'Stool', image: './stool_wood_blue.png', isPremium: false },
-    { id: 'stool_wood_square', name: 'Stool', image: './stool_wood_square.png', isPremium: false },
-    { id: 'stool_black_metal', name: 'Stool', image: './stool_black_metal.png', isPremium: false },
-    { id: 'stool_beige_round', name: 'Stool', image: './stool_beige_round.png', isPremium: true },
+  tables: [
+    { id: 'table2', name: 'Modern Table 2', image: '/3D/icon/tables/table2.png', model: '/3D/model/tables/table2.fbx', type: 'FURNITURE', width: 140, depth: 80, height: 75, elevation: 0, modelScale: [0.04, 0.04, 0.04] }
   ],
-  dining_tables: [
-    { id: 'table_black_rect', name: 'Table', image: './table_black_rect.png', isPremium: false },
-    { id: 'table_wood_square', name: 'Table', image: './table_wood_square.png', isPremium: false },
-    { id: 'table_wood_rect', name: 'Table', image: './table_wood_rect.png', isPremium: false },
-    { id: 'table_white_rect', name: 'Table', image: './table_white_rect.png', isPremium: false },
-    { id: 'table_glass_rect', name: 'Dining table', image: './table_glass_rect.png', isPremium: true },
+  beds: [
+    { id: 'bed2', name: 'Bed 2', image: '/3D/icon/beds/bed2.png', model: '/3D/model/beds/bed2.fbx', type: 'FURNITURE', width: 180, depth: 200, height: 100, elevation: 0, modelScale: [0.01, 0.01, 0.01] },
+    { id: 'bed3', name: 'Bed 3 (Large & Tri-Color)', image: '/3D/icon/beds/bed3.png', model: '/3D/model/beds/bed3.fbx', type: 'FURNITURE', width: 250, depth: 260, height: 140, elevation: 0, modelScale: [0.02, 0.02, 0.02] }
   ],
-  office_desks: [
-    { id: 'desk_wood_drawers', name: 'Table', image: './desk_wood_drawers.png', isPremium: false },
-    { id: 'desk_white_metal', name: 'Table', image: './desk_white_metal.png', isPremium: false },
-    { id: 'desk_blue_drawers', name: 'Office desk', image: './desk_blue_drawers.png', isPremium: false },
-    { id: 'desk_wood_simple', name: 'Table', image: './desk_wood_simple.png', isPremium: false },
-    { id: 'desk_black_white', name: 'Table', image: './desk_black_white.png', isPremium: true },
+  cabinets: [
+    { id: 'wardrobe_new', name: 'Modern Wardrobe', image: '/3D/icon/wardrobe/wardrobe.png', model: '/3D/model/wardrobe/wardrobe.fbx', type: 'FURNITURE', width: 120, depth: 60, height: 210, elevation: 0, modelScale: [0.07, 0.07, 0.07] }
   ],
-  single_beds: [
-    { id: 'single_bed_wood', name: 'Bed', image: './single_bed_wood.png', isPremium: false },
-    { id: 'single_bed_wood_dark', name: 'Bed', image: './single_bed_wood_dark.png', isPremium: false },
-    { id: 'single_bed_wood_simple', name: 'Bed', image: './single_bed_wood_simple.png', isPremium: true },
-    { id: 'single_sofa_bed_grey', name: 'Bed', image: './single_sofa_bed_grey.png', isPremium: true },
-    { id: 'single_sofa_bed_light', name: 'Sofa', image: './single_sofa_bed_light.png', isPremium: true },
+  kitchen_furn: [
+    { id: 'dining_table', name: 'Dining Table', image: '/3D/icon/kitchen/dining%20table.png', model: '/3D/model/kitchen/dining%20table.fbx', type: 'FURNITURE', width: 160, depth: 90, height: 75, elevation: 0, modelScale: [1.5, 1.5, 1.5] },
+    { id: 'cabinet', name: 'Kitchen Cabinet', image: '/3D/icon/kitchen/cabinet.png', model: '/3D/model/kitchen/cabinet.fbx', type: 'FURNITURE', width: 120, depth: 60, height: 90, elevation: 0, modelScale: [1.9, 1.9, 1.9] }
   ],
-  double_beds: [
-    { id: 'double_bed_wood_dark', name: 'Bed', image: './double_bed_wood_dark.png', isPremium: false },
-    { id: 'double_bed_fabric_grey', name: 'Bed', image: './double_bed_fabric_grey.png', isPremium: false },
-    { id: 'double_bed_leather_white', name: 'Bed', image: './double_bed_leather_white.png', isPremium: true },
-    { id: 'double_bed_wood_light', name: 'Bed', image: './double_bed_wood_light.png', isPremium: true },
-    { id: 'double_bed_fabric_light', name: 'Bed', image: './double_bed_fabric_light.png', isPremium: true },
+  bathroom_furn: [
+    { id: 'bathtub1', name: 'Bathtub 1', image: '/3D/icon/bathroom/bathtub1.png', model: '/3D/model/bathroom/bathtub.fbx', type: 'FURNITURE', width: 170, depth: 75, height: 60, elevation: 0, modelScale: [0.03, 0.03, 0.03] },
+    { id: 'sink1', name: 'Sink 1', image: '/3D/icon/bathroom/sink1.png', model: '/3D/model/bathroom/sink1.fbx', type: 'FURNITURE', width: 60, depth: 50, height: 80, elevation: 0, modelScale: [0.03, 0.03, 0.03] },
+    { id: 'sink2', name: 'Sink 2', image: '/3D/icon/bathroom/sink2.png', model: '/3D/model/bathroom/sink2.fbx', type: 'FURNITURE', width: 60, depth: 50, height: 80, elevation: 0, modelScale: [0.03, 0.03, 0.03] },
+    { id: 'washbasin', name: 'Washbasin', image: '/3D/icon/bathroom/washbasin.png', model: '/3D/model/bathroom/washbasin.fbx', type: 'FURNITURE', width: 80, depth: 50, height: 85, elevation: 0, modelScale: [0.02, 0.02, 0.02] },
+    { id: 'toilet', name: 'Toilet', image: '/3D/icon/bathroom/toilet.png', model: '/3D/model/bathroom/toilet.fbx', type: 'FURNITURE', width: 40, depth: 65, height: 75, elevation: 0, modelScale: [0.02, 0.02, 0.02] }
   ],
-  children_beds: [
-    { id: 'crib_wood_classic', name: 'Bed', image: './crib_wood_classic.png', isPremium: false },
-    { id: 'crib_wood_blue', name: 'Bed', image: './crib_wood_blue.png', isPremium: false },
-    { id: 'crib_wood_white', name: 'Bed', image: './crib_wood_white.png', isPremium: true },
-    { id: 'bunk_bed_wood', name: 'Bed', image: './bunk_bed_wood.png', isPremium: true },
-    { id: 'bunk_bed_metal', name: 'Bed', image: './bunk_bed_metal.png', isPremium: true },
+  household_appl: [
+    { id: 'washingmachine', name: 'Washing Machine', image: '/3D/icon/household/washingmachine.png', model: '/3D/model/household/washingmachine.fbx', type: 'FURNITURE', width: 60, depth: 60, height: 85, elevation: 0, modelScale: [0.006, 0.006, 0.006] }
   ],
-  cabinets_closets: [
-    { id: 'sliding_wardrobe', name: 'Sliding wardrobe', image: './sliding_wardrobe.png', isPremium: false },
-    { id: 'wardrobe_wood', name: 'Wardrobe', image: './wardrobe_wood.png', isPremium: false },
-    { id: 'cabinet_wood_doors', name: 'Cabinet', image: './cabinet_wood_doors.png', isPremium: false },
-    { id: 'cabinet_glass_doors', name: 'Cabinet', image: './cabinet_glass_doors.png', isPremium: false },
-    { id: 'cabinet_drawers_wood', name: 'Cabinet', image: './cabinet_drawers_wood.png', isPremium: true },
-    { id: 'cabinet_tall_wood', name: 'Cabinet', image: './cabinet_tall_wood.png', isPremium: true },
+  tv_audio: [
+    { id: 'tv', name: 'TV', image: '/3D/icon/tv/tv.png', model: '/3D/model/tv/tv.fbx', type: 'FURNITURE', width: 120, depth: 10, height: 70, elevation: 0, modelScale: [0.01, 0.01, 0.01] }
   ],
-  dressers_consoles: [
-    { id: 'cabinet_drawers_oak', name: 'Cabinet', image: './cabinet_drawers_oak.png', isPremium: false },
-    { id: 'cabinet_drawers_grey', name: 'Cabinet', image: './cabinet_drawers_grey.png', isPremium: false },
-    { id: 'console_kennor', name: 'Kennor', image: './console_kennor.png', isPremium: false },
-    { id: 'console_mirror', name: 'Console mirror', image: './console_mirror.png', isPremium: false },
-    { id: 'chest_of_drawers', name: 'Chest of drawers', image: './chest_of_drawers.png', isPremium: true },
-    { id: 'cabinet_white_brown', name: 'Cabinet', image: './cabinet_white_brown.png', isPremium: true },
+  lighting: [
+    { id: 'lamp1', name: 'Lamp 1', image: '/3D/icon/lights/lamp1.png', model: '/3D/model/lights/lamp1.fbx', type: 'FURNITURE', width: 40, depth: 40, height: 160, elevation: 0, modelScale: [0.03, 0.03, 0.03], modelRotation: [-Math.PI / 2, 0, 0] }
   ],
-  shelves: [
-    { id: 'shelf_wood_long', name: 'Shelf', image: './shelf_wood_long.png', isPremium: false },
-    { id: 'shelf_wood_tall', name: 'Shelf', image: './shelf_wood_tall.png', isPremium: false },
-    { id: 'bookcase_blue', name: 'Bookcase', image: './bookcase_blue.png', isPremium: false },
-    { id: 'shelf_wood_odd', name: 'Shelf', image: './shelf_wood_odd.png', isPremium: false },
-    { id: 'bookcase_black', name: 'Bookcase', image: './bookcase_black.png', isPremium: true },
-    { id: 'shelf_metal_wood', name: 'Shelf', image: './shelf_metal_wood.png', isPremium: true },
-    { id: 'shelving_cube_color', name: 'Shelving', image: './shelving_cube_color.png', isPremium: true },
-  ],
-  stands: [
-    { id: 'stand_wood_open', name: 'Stand', image: './stand_wood_open.png', isPremium: false },
-    { id: 'nightstand_wood_white', name: 'Nightstand', image: './nightstand_wood_white.png', isPremium: false },
-    { id: 'nightstand_wood_drawer', name: 'Nightstand', image: './nightstand_wood_drawer.png', isPremium: false },
-    { id: 'stand_black_red_white', name: 'Stand', image: './stand_black_red_white.png', isPremium: false },
-    { id: 'mobile_pedestal', name: 'Mobile pedestal', image: './mobile_pedestal.png', isPremium: true },
-    { id: 'nightstand_black_drawer', name: 'Nightstand', image: './nightstand_black_drawer.png', isPremium: true },
-    { id: 'nightstand_black_grey', name: 'Nightstand', image: './nightstand_black_grey.png', isPremium: true },
-  ],
-  tv_stands: [
-    { id: 'lowboard_wood_dark', name: 'Lowboard', image: './lowboard_wood_dark.png', isPremium: false },
-    { id: 'cabinet_white_low', name: 'Cabinet', image: './cabinet_white_low.png', isPremium: false },
-    { id: 'stand_white_glass', name: 'Stand', image: './stand_white_glass.png', isPremium: false },
-    { id: 'cabinet_wood_long', name: 'Cabinet', image: './cabinet_wood_long.png', isPremium: false },
-    { id: 'tv_stand_wood', name: 'TV stand', image: './tv_stand_wood.png', isPremium: true },
-  ],
-  wall_cabinets: [
-    { id: 'wall_cab_1', name: 'Cabinet', image: './wall_cab_1.png', isPremium: false },
-    { id: 'wall_cab_corner_1', name: 'Corner cabinet', image: './wall_cab_corner_1.png', isPremium: false },
-    { id: 'wall_cab_2', name: 'Cabinet', image: './wall_cab_2.png', isPremium: false },
-    { id: 'wall_cab_3', name: 'Cabinet', image: './wall_cab_3.png', isPremium: true },
-    { id: 'wall_cab_white', name: 'Cabinet', image: './wall_cab_white.png', isPremium: false },
-    { id: 'wall_cab_tall', name: 'Wall cabinet', image: './wall_cab_tall.png', isPremium: true },
-    { id: 'wall_cab_narrow', name: 'Cabinet', image: './wall_cab_narrow.png', isPremium: true },
-    { id: 'wall_cab_corner_2', name: 'Cabinet', image: './wall_cab_corner_2.png', isPremium: true },
-  ],
-  base_pantry_cabinets: [
-    { id: 'base_cab_1', name: 'Cabinet', image: './base_cab_1.png', isPremium: false },
-    { id: 'base_cab_3drawers', name: 'Cabinet', image: './base_cab_3drawers.png', isPremium: false },
-    { id: 'base_sink_cab', name: 'Sink & cabinet', image: './base_sink_cab.png', isPremium: false },
-    { id: 'base_cooker_1', name: 'Built-in cooker', image: './base_cooker_1.png', isPremium: false },
-    { id: 'base_corner_1', name: 'Corner cabinet', image: './base_corner_1.png', isPremium: false },
-    { id: 'pantry_cab_1', name: 'Cabinet', image: './pantry_cab_1.png', isPremium: true },
-    { id: 'base_cab_2drawers', name: 'Cabinet', image: './base_cab_2drawers.png', isPremium: true },
-  ],
-  baths_showers: [
-    { id: 'bath_1', name: 'Bath', image: './bath_1.png', isPremium: false },
-    { id: 'shower_cabin_1', name: 'Shower cabin', image: './shower_cabin_1.png', isPremium: false },
-    { id: 'shower_set_1', name: 'Shower set', image: './shower_set_1.png', isPremium: false },
-    { id: 'bath_2', name: 'Bath', image: './bath_2.png', isPremium: false },
-    { id: 'shower_cabin_2', name: 'Shower cabin', image: './shower_cabin_2.png', isPremium: true },
-    { id: 'shower_cabin_3', name: 'Shower cabin', image: './shower_cabin_3.png', isPremium: true },
-    { id: 'shower_door_1', name: 'Shower door', image: './shower_door_1.png', isPremium: true },
-    { id: 'shower_set_2', name: 'Shower set', image: './shower_set_2.png', isPremium: true },
-  ],
-  toilets_bidet: [
-    { id: 'toilet_bowl_1', name: 'Toilet bowl', image: './toilet_bowl_1.png', isPremium: false },
-    { id: 'bidet_1', name: 'Bidet', image: './bidet_1.png', isPremium: false },
-    { id: 'toilet_bowl_2', name: 'Toilet bowl', image: './toilet_bowl_2.png', isPremium: false },
-    { id: 'toilet_bowl_4', name: 'Toilet bowl', image: './toilet_bowl_4.png', isPremium: true },
-  ],
-  washbasins: [
-    { id: 'water_tap_1', name: 'Water tap', image: './water_tap_1.png', isPremium: false },
-    { id: 'washbasin_1', name: 'Washbasin', image: './washbasin_1.png', isPremium: false },
-    { id: 'washbasin_2', name: 'Washbasin', image: './washbasin_2.png', isPremium: false },
-    { id: 'washbasin_4', name: 'Washbasin', image: './washbasin_4.png', isPremium: true },
-    { id: 'washbasin_5', name: 'Washbasin', image: './washbasin_5.png', isPremium: true },
-    { id: 'washbasin_inve_1', name: 'Washbasin INVE', image: './washbasin_inve_1.png', isPremium: true },
-  ],
-  bathroom_storage_mirrors: [
-    { id: 'mirror_inve_1', name: 'Mirror INVE', image: './mirror_inve_1.png', isPremium: false },
-    { id: 'vertical_mirror_1', name: 'Vertical mirror', image: './cabinet_mirror_1.png', isPremium: false },
-    { id: 'mirror_1', name: 'Mirror', image: './mirror_1.png', isPremium: true },
-    { id: 'mirror_2', name: 'Mirror', image: './mirror_2.png', isPremium: true },
-    { id: 'mirror_3', name: 'Cabinet', image: './mirror_3.png', isPremium: true },
-    { id: 'mirror_4', name: 'Mirror', image: './mirror_4.png', isPremium: true },
-  ],
-  bathroom_accessories: [
-    { id: 'towel_dryer_1', name: 'Towel dryer', image: './towel_dryer_1.png', isPremium: false },
-    { id: 'soap_1', name: 'Soap', image: './soap_1.png', isPremium: false },
-    { id: 'towel_3', name: 'Towel', image: './towel_3.png', isPremium: true },
-  ],
-  household_appliances: [
-    { id: 'washing_machine_1', name: 'Washing machine', image: './washing_machine_1.png', isPremium: false },
-    { id: 'boiler_1', name: 'Boiler', image: './boiler_1.png', isPremium: false },
-    { id: 'vacuum_robot', name: 'Vacuum cleaner', image: './vacuum_robot.png', isPremium: true },
-    { id: 'iron_1', name: 'Iron', image: './iron_1.png', isPremium: true },
-  ],
-  tv_video_audio: [
-    { id: 'tv_45', name: "TV 45'", image: './tv_45.png', isPremium: false },
-    { id: 'tv_46', name: "TV 46'", image: './tv_46.png', isPremium: false },
-    { id: 'speaker_1', name: 'Speaker', image: './speaker_1.png', isPremium: true },
-    { id: 'tv_60_1', name: "Tv_60'", image: './tv_60_1.png', isPremium: true },
-  ],
-  lighting_appliances: [
-    { id: 'ceiling_light_1', name: 'Ceiling light', image: './ceiling_light_1.png', isPremium: false },
-    { id: 'pendant_light_1', name: 'Pendant light', image: './pendant_light_1.png', isPremium: false },
-    { id: 'wall_light_1', name: 'Wall light', image: './wall_light_1.png', isPremium: false },
-    { id: 'floor_lamp_1', name: 'Floor lamp', image: './floor_lamp_1.png', isPremium: false },
-    { id: 'table_lamp_1', name: 'Table lamp', image: './table_lamp_1.png', isPremium: false },
-  ],
-  kitchen_appliances: [
-    { id: 'refrigerator_1', name: 'Refrigerator', image: './refrigerator_1.png', isPremium: false },
-    { id: 'stove_1', name: 'Stove', image: './stove_1.png', isPremium: false },
-    { id: 'stove_hood_1', name: 'Stove hood', image: './stove_hood_1.png', isPremium: false },
-    { id: 'blender_1', name: 'Blender', image: './blender_1.png', isPremium: false },
+  kitchen_appl: [
+    { id: 'fridge', name: 'Fridge', image: '/3D/icon/kitchen%20applience/fridge.png', model: '/3D/model/kitchen%20applience/fridge1.fbx', type: 'FURNITURE', width: 70, depth: 70, height: 180, elevation: 0, modelScale: [0.01, 0.01, 0.01] },
+    { id: 'stove', name: 'Stove', image: '/3D/icon/kitchen%20applience/stove.png', model: '/3D/model/kitchen%20applience/stove.fbx', type: 'FURNITURE', width: 60, depth: 60, height: 90, elevation: 0, modelScale: [0.01, 0.01, 0.01] }
   ],
   climate: [
-    { id: 'ac_indoor_1', name: 'Air conditioner', image: './ac_indoor_1.png', isPremium: false },
-    { id: 'ac_outdoor_1', name: 'Air conditioner', image: './ac_outdoor_1.png', isPremium: false },
-    { id: 'fan_pedestal_1', name: 'Fan', image: './fan_pedestal_1.png', isPremium: true },
-    { id: 'ceiling_fan_1', name: 'Ceiling fan', image: './ceiling_fan_1.png', isPremium: false },
-    { id: 'ceiling_fan_2', name: 'Ceiling fan', image: './ceiling_fan_2.png', isPremium: true },
-  ],
-  decor_plants: [
-    { id: 'lemon_tree', name: 'Lemon tree', image: './lemon_tree.png', isPremium: false },
-    { id: 'cactus_1', name: 'Cactus', image: './cactus_1.png', isPremium: false },
-    { id: 'plant_bowl', name: 'Plant', image: './plant_bowl.png', isPremium: false },
-    { id: 'tulips_1', name: 'Tulips', image: './tulips_1.png', isPremium: true },
-    { id: 'monstera_1', name: 'Monstera', image: './monstera_1.png', isPremium: true },
-  ],
-  window_decor: [
-    { id: 'curtains_stripe', name: 'Curtains', image: './curtains_stripe.png', isPremium: false },
-    { id: 'curtains_beige', name: 'Curtains', image: './curtains_beige.png', isPremium: false },
-    { id: 'horizontal_blinds', name: 'Horizontal blinds', image: './horizontal_blinds.png', isPremium: false },
-    { id: 'curtains_tied', name: 'Curtains', image: './curtains_tied.png', isPremium: true },
-    { id: 'curtains_patterned', name: 'Curtains', image: './curtains_patterned.png', isPremium: true },
+    { id: 'ac', name: 'AC 1', image: '/3D/icon/climate/ac.png', model: '/3D/model/climate/ac.fbx', type: 'FURNITURE', width: 80, depth: 30, height: 30, elevation: 200, modelScale: [0.006, 0.006, 0.006] },
   ],
   carpets_rugs: [
-    { id: 'carpet_round_butterfly', name: 'Carpet round', image: './carpet_round_butterfly.png', isPremium: false },
-    { id: 'carpet_round_floral', name: 'Carpet round', image: './carpet_round_floral.png', isPremium: false },
-    { id: 'carpet_round_beige', name: 'Carpet round', image: './carpet_round_beige.png', isPremium: true },
-    { id: 'carpet_round_classic', name: 'Carpet round', image: './carpet_round_classic.png', isPremium: true },
-    { id: 'carpet_round_fish', name: 'Carpet round', image: './carpet_round_fish.png', isPremium: true },
+    { id: 'carpet_classic', name: 'Classic Rug', image: '/carpet_round_classic.png', texture: '/carpet_round_classic.png', model: '/3D/model/carpet/carpet.fbx', type: 'FURNITURE', width: 800, depth: 1200, height: 1, elevation: 0, modelScale: [0.03, 0.03, 0.03] },
+    { id: 'carpet_floral', name: 'Floral Rug', image: '/carpet_round_floral.png', texture: '/carpet_round_floral.png', model: '/3D/model/carpet/carpet1.fbx', type: 'FURNITURE', width: 800, depth: 1200, height: 1, elevation: 0, modelScale: [0.03, 0.03, 0.03] },
+    { id: 'carpet_butterfly', name: 'Butterfly Rug', image: '/carpet_round_butterfly.png', texture: '/carpet_round_butterfly.png', model: '/3D/model/carpet/carpet.fbx', type: 'FURNITURE', width: 800, depth: 1200, height: 1, elevation: 0, modelScale: [0.03, 0.03, 0.03] },
   ],
-  vases: [
-    { id: 'vase_1', name: 'Vase', image: './vase_1.png', isPremium: false },
-    { id: 'vase_2', name: 'Vase', image: './vase_2.png', isPremium: false },
-    { id: 'vase_3', name: 'Vase', image: './vase_3.png', isPremium: true },
-    { id: 'vase_4', name: 'Vase', image: './vase_4.png', isPremium: true },
-    { id: 'vase_5', name: 'Vase', image: './vase_5.png', isPremium: true },
+  plants: [
+    { id: 'plant1', name: 'Plant 1', image: '/3D/icon/plant/plant1.png', model: '/3D/model/plant/plant1.fbx', type: 'FURNITURE', width: 50, depth: 50, height: 100, elevation: 0, modelScale: [0.01, 0.01, 0.01] }
   ]
 };

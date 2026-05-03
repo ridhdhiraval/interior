@@ -40,8 +40,8 @@ router.post('/google', async (req, res) => {
             // Register new user
             console.log('Registering new user via Google:', email);
             const result = await db.query(
-                'INSERT INTO users (name, email, profile_pic, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role, created_at',
-                [name, email, picture, 'user']
+                'INSERT INTO users (name, email, profile_pic, role, plan, ai_credits, manual_credits) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, name, email, role, plan, ai_credits, manual_credits, created_at',
+                [name, email, picture, 'user', 'FREE', 3, 3]
             );
             user = result.rows[0];
         } else {
@@ -146,7 +146,7 @@ router.get('/me', auth, async (req, res) => {
     try {
         console.log('Fetching user profile for ID:', req.user.id);
         const result = await db.query(
-            'SELECT id, name, email, role, created_at FROM users WHERE id = $1',
+            'SELECT id, name, email, role, plan, ai_credits, manual_credits, created_at FROM users WHERE id = $1',
             [req.user.id]
         );
         if (result.rows.length === 0) {
@@ -173,8 +173,8 @@ router.post('/register', async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
         const result = await db.query(
-            'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, name, email, role, created_at',
-            [name, email, hashedPassword]
+            'INSERT INTO users (name, email, password, plan, ai_credits, manual_credits) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, name, email, role, plan, ai_credits, manual_credits, created_at',
+            [name, email, hashedPassword, 'FREE', 3, 3]
         );
 
         const token = jwt.sign({ id: result.rows[0].id, role: result.rows[0].role }, process.env.JWT_SECRET);
@@ -212,6 +212,7 @@ router.post('/login', async (req, res) => {
                 name: result.rows[0].name,
                 email: result.rows[0].email,
                 role: result.rows[0].role,
+                plan: result.rows[0].plan,
                 created_at: result.rows[0].created_at
             },
             token

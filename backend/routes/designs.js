@@ -18,10 +18,24 @@ router.post('/', auth, async (req, res) => {
     const { name, design_data, thumbnail_url } = req.body;
 
     try {
+        // Check user plan and manual credits
+        const userRes = await db.query('SELECT plan, manual_credits FROM users WHERE id = $1', [req.user.id]);
+        const user = userRes.rows[0];
+
+        if (user.plan === 'FREE' && user.manual_credits <= 0) {
+            return res.status(403).json({ message: 'Insufficient Manual Design credits. Please upgrade your plan.' });
+        }
+
         const result = await db.query(
             'INSERT INTO designs (user_id, name, design_data, thumbnail_url) VALUES ($1, $2, $3, $4) RETURNING *',
             [req.user.id, name, design_data, thumbnail_url]
         );
+
+        // Decrement credits for FREE users
+        if (user.plan === 'FREE') {
+            await db.query('UPDATE users SET manual_credits = manual_credits - 1 WHERE id = $1', [req.user.id]);
+        }
+
         res.status(201).json(result.rows[0]);
     } catch (err) {
         res.status(500).json({ error: err.message });

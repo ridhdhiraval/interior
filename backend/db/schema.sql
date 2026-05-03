@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255),
     profile_pic TEXT,
     role VARCHAR(50) DEFAULT 'user', -- 'user' or 'admin'
+    plan VARCHAR(50) DEFAULT 'FREE',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

@@ -1,76 +1,100 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
+import AIBot from './AIBot';
 
 const Pricing = () => {
   const [billingCycle, setBillingCycle] = useState('year');
-  const [openFaq, setOpenFaq] = useState(0);
+  const [userPlan, setUserPlan] = useState('FREE');
+  const [settings, setSettings] = useState({ currency: 'INR' });
+  const [dbPlans, setDbPlans] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const user = JSON.parse(storedUser);
+      setUserPlan(user.plan || 'FREE');
+    }
+    fetchGlobalData();
+  }, []);
+
+  const fetchGlobalData = async () => {
+    try {
+      const [settingsRes, plansRes] = await Promise.all([
+        axios.get('http://localhost:5001/api/public/settings'),
+        axios.get('http://localhost:5001/api/public/plans')
+      ]);
+      setSettings(settingsRes.data);
+      setDbPlans(plansRes.data);
+    } catch (err) {
+      console.error('Failed to fetch global data', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getCurrencySymbol = (code) => {
+    const symbols = { 'USD': '$', 'INR': '₹', 'EUR': '€', 'GBP': '£' };
+    return symbols[code] || code;
+  };
+
+  const getPrice = (planName) => {
+    const plan = dbPlans.find(p => p.name === planName);
+    if (!plan) {
+      // Fallback prices from screenshot if DB fetch fails
+      if (planName === 'STANDARD') return billingCycle === 'year' ? '50' : '5';
+      if (planName === 'PRO') return billingCycle === 'year' ? '100' : '10';
+      return '0';
+    }
+    return billingCycle === 'year' ? plan.yearly : plan.monthly;
+  };
 
   const plans = [
     {
       name: 'FREE',
-      price: '0',
+      price: getPrice('FREE'),
       active: true,
       features: {
-        projects: '3',
-        initialCatalog: true,
-        advancedCatalog: false,
-        commercialSpaces: false,
-        baseboardEditor: false,
-        combiningMaterials: false,
-        uploadPictures: false,
-        uploadTextures: false,
-        upload3dModels: false,
-        viewOnlySharing: false,
+        aiCredits: '3 Credits',
+        manualCredits: '3 Credits',
+        aiDesign: true,
+        floorPlanner: true,
+        furnitureCatalog: 'Basic',
+        materials: 'Basic',
+        hdRendering: false,
+        projectHistory: true,
       }
     },
     {
       name: 'STANDARD',
-      price: billingCycle === 'year' ? '5' : '9',
+      price: getPrice('STANDARD'),
       active: false,
       features: {
-        projects: 'Unlimited',
-        initialCatalog: true,
-        advancedCatalog: true,
-        commercialSpaces: false,
-        baseboardEditor: true,
-        combiningMaterials: true,
-        uploadPictures: true,
-        uploadTextures: true,
-        upload3dModels: false,
-        viewOnlySharing: true,
+        aiCredits: 'Unlimited',
+        manualCredits: 'Unlimited',
+        aiDesign: true,
+        floorPlanner: true,
+        furnitureCatalog: 'Standard',
+        materials: 'Standard',
+        hdRendering: false,
+        projectHistory: true,
       }
     },
     {
       name: 'PRO',
-      price: billingCycle === 'year' ? '10' : '19',
+      price: getPrice('PRO'),
       active: false,
       features: {
-        projects: 'Unlimited',
-        initialCatalog: true,
-        advancedCatalog: true,
-        commercialSpaces: true,
-        baseboardEditor: true,
-        combiningMaterials: true,
-        uploadPictures: true,
-        uploadTextures: true,
-        upload3dModels: true,
-        viewOnlySharing: true,
+        aiCredits: 'Unlimited',
+        manualCredits: 'Unlimited',
+        aiDesign: true,
+        floorPlanner: true,
+        furnitureCatalog: 'Premium',
+        materials: 'Premium',
+        hdRendering: true,
+        projectHistory: true,
       }
-    }
-  ];
-
-  const faqs = [
-    {
-      question: "Can I change my subscription?",
-      answer: "Sure, you can change your subscription in your account settings. Upgrading subscription plan: From the FREE plan, you can switch to the BASIC or PRO plan at any time. When switching from the BASIC subscription to PRO, an additional fee will be charged for the remaining period until the end of your BASIC subscription plan. Downgrading subscription plan: Downgrading the subscription plan is possible after the current plan expires. To do this, you need to unsubscribe from the existing subscription plan, and after its expiration, choose another tariff plan that you desire."
-    },
-    {
-      question: "Can I cancel my subscription?",
-      answer: "Yes, you can cancel your subscription at any time from your account dashboard. Your access will remain active until the end of the current billing period."
-    },
-    {
-      question: "What happens when the subscription ends?",
-      answer: "When your subscription ends and is not renewed, your account will revert to the FREE plan. You will still be able to view your projects, but some editing features may be limited according to the FREE plan's restrictions."
     }
   ];
 
@@ -291,83 +315,6 @@ const Pricing = () => {
           font-weight: bold;
         }
 
-        .faq-section {
-          margin-top: 80px;
-          background: #73c2fb;
-          padding: 80px 0;
-          color: white;
-        }
-
-        .faq-container {
-          max-width: 1000px;
-          margin: 0 auto;
-          padding: 0 40px;
-        }
-
-        .faq-title {
-          text-align: center;
-          font-size: 48px;
-          margin-bottom: 60px;
-          font-weight: 400;
-          letter-spacing: 1px;
-        }
-
-        .faq-item {
-          border-top: 1px solid rgba(255,255,255,0.4);
-          padding: 0;
-          overflow: hidden;
-        }
-
-        .faq-item:last-child {
-          border-bottom: 1px solid rgba(255,255,255,0.4);
-        }
-
-        .faq-question {
-          font-size: 20px;
-          font-weight: 400;
-          padding: 25px 0;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          cursor: pointer;
-          transition: color 0.3s;
-        }
-
-        .faq-question:hover {
-          color: #fff;
-        }
-
-        .faq-question.active {
-          color: #ffff00;
-        }
-
-        .faq-answer {
-          font-size: 15px;
-          line-height: 1.8;
-          color: white;
-          padding-bottom: 30px;
-          max-height: 0;
-          opacity: 0;
-          transition: all 0.4s ease;
-          pointer-events: none;
-        }
-
-        .faq-item.open .faq-answer {
-          max-height: 500px;
-          opacity: 1;
-          pointer-events: auto;
-        }
-
-        .faq-arrow {
-          font-size: 24px;
-          transition: transform 0.3s ease;
-          opacity: 0.8;
-        }
-
-        .faq-item.open .faq-arrow {
-          transform: rotate(180deg);
-        }
-
         @media (max-width: 768px) {
           .plans-grid {
             grid-template-columns: 1fr;
@@ -402,71 +349,50 @@ const Pricing = () => {
           <div className="plan-column feature-labels">
             <div className="plan-header"></div>
             <div className="feature-name">
-              Projects available
+              AI Design Credits
               <span className="info-icon-small">?</span>
             </div>
             <div className="feature-name">
-              Initial catalog of products and materials
+              Manual Design Credits
+              <span className="info-icon-small">?</span>
             </div>
-            <div className="feature-name">
-              Advanced catalog of products and materials
-            </div>
-            <div className="feature-name">Products for commercial spaces</div>
-            <div className="feature-name">Baseboard editor</div>
-            <div className="feature-name">Combining materials on the walls</div>
-            <div className="feature-name">Uploading your own pictures</div>
-            <div className="feature-name">Uploading your own textures</div>
-            <div className="feature-name">Uploading your own 3D-models</div>
-            <div className="feature-name">"View-only" projects for sharing</div>
+            <div className="feature-name">AI Interior Design</div>
+            <div className="feature-name">2D/3D Floor Planner</div>
+            <div className="feature-name">Furniture Catalog</div>
+            <div className="feature-name">Material & Decorations</div>
+            <div className="feature-name">HD Rendering</div>
+            <div className="feature-name">Project History</div>
           </div>
 
           {plans.map((plan, index) => (
             <div className="plan-column" key={index}>
               <div className="plan-header">
                 <div className="plan-name">{plan.name}</div>
-                <div className="plan-price">{plan.price === '0' ? '0' : `$${plan.price}`}<span>{plan.price !== '0' && '/MON'}</span></div>
-                {plan.name === 'FREE' ? (
+                <div className="plan-price">{plan.price === '0' || plan.price === 0 ? '0' : `${getCurrencySymbol(settings.currency)}${plan.price}`}<span>{plan.price !== '0' && plan.price !== 0 && '/MON'}</span></div>
+                {userPlan === plan.name ? (
                   <button className="plan-btn active-plan">YOUR ACTIVE PLAN</button>
+                ) : plan.name === 'FREE' ? (
+                  <button className="plan-btn active-plan" disabled>FREE PLAN</button>
                 ) : plan.name === 'STANDARD' ? (
                   <Link className="plan-btn basic-btn" to="/subscribe/standard">GET STANDARD</Link>
                 ) : (
                   <Link className="plan-btn pro-btn" to="/subscribe/pro">GET PRO</Link>
                 )}
               </div>
-              <div className="feature-value">{plan.features.projects}</div>
-              <div className="feature-value">{plan.features.initialCatalog && <span className="check-icon">✓</span>}</div>
-              <div className="feature-value">{plan.features.advancedCatalog && <span className="check-icon">✓</span>}</div>
-              <div className="feature-value">{plan.features.commercialSpaces && <span className="check-icon">✓</span>}</div>
-              <div className="feature-value">{plan.features.baseboardEditor && <span className="check-icon">✓</span>}</div>
-              <div className="feature-value">{plan.features.combiningMaterials && <span className="check-icon">✓</span>}</div>
-              <div className="feature-value">{plan.features.uploadPictures && <span className="check-icon">✓</span>}</div>
-              <div className="feature-value">{plan.features.uploadTextures && <span className="check-icon">✓</span>}</div>
-              <div className="feature-value">{plan.features.upload3dModels && <span className="check-icon">✓</span>}</div>
-              <div className="feature-value">{plan.features.viewOnlySharing && <span className="check-icon">✓</span>}</div>
+              <div className="feature-value">{plan.features.aiCredits}</div>
+              <div className="feature-value">{plan.features.manualCredits}</div>
+              <div className="feature-value">{plan.features.aiDesign && <span className="check-icon">✓</span>}</div>
+              <div className="feature-value">{plan.features.floorPlanner && <span className="check-icon">✓</span>}</div>
+              <div className="feature-value">{plan.features.furnitureCatalog}</div>
+              <div className="feature-value">{plan.features.materials}</div>
+              <div className="feature-value">{plan.features.hdRendering ? <span className="check-icon">✓</span> : <span style={{ color: '#ff4d4f' }}>✕</span>}</div>
+              <div className="feature-value">{plan.features.projectHistory && <span className="check-icon">✓</span>}</div>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="faq-section">
-        <div className="faq-container">
-          <h2 className="faq-title">FAQ</h2>
-          {faqs.map((faq, index) => (
-            <div className={`faq-item ${openFaq === index ? 'open' : ''}`} key={index}>
-              <div 
-                className={`faq-question ${openFaq === index ? 'active' : ''}`} 
-                onClick={() => setOpenFaq(openFaq === index ? -1 : index)}
-              >
-                {faq.question}
-                <span className="faq-arrow">﹀</span>
-              </div>
-              <div className="faq-answer">
-                {faq.answer}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <AIBot />
     </div>
   );
 };

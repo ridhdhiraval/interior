@@ -35,10 +35,14 @@ export default function Settings() {
     setMessage({ text: '', type: '' })
     try {
       const token = localStorage.getItem('token')
-      // Simulate save for now as backend just returns dummy data
-      await new Promise(r => setTimeout(r, 800))
+      await axios.post('http://localhost:5001/api/admin/settings', settings, {
+        headers: { 'x-auth-token': token }
+      })
       setMessage({ text: 'Settings saved successfully!', type: 'success' })
+      // Trigger a global update if necessary (e.g., through a context or simple reload)
+      setTimeout(() => window.location.reload(), 1500)
     } catch (err) {
+      console.error('Failed to save settings', err)
       setMessage({ text: 'Failed to save settings', type: 'error' })
     } finally {
       setSaving(false)
@@ -132,6 +136,12 @@ export default function Settings() {
           </div>
           <button type="submit" className="btn-save" disabled={saving}>
             {saving ? 'Saving...' : 'Save Payment Settings'}
+          </button>
+        </div>
+
+        <div style={{ gridColumn: '1 / -1', display: 'flex', justifyContent: 'flex-end' }}>
+          <button type="submit" className="btn-save" disabled={saving}>
+            {saving ? 'Saving...' : 'Save Settings'}
           </button>
         </div>
       </form>

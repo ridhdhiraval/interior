@@ -81,8 +81,29 @@ export default function VirtualAI() {
 
       if (res.data.success) {
         console.log("Image URL received:", res.data.imageUrl);
-        setGeneratedImage(res.data.imageUrl);
+        const imageUrl = res.data.imageUrl;
+        setGeneratedImage(imageUrl);
         setUploadStatus(false); // Reset upload status so it doesn't show "✓ Image is added"
+
+        // ✅ SAVE DESIGN TO DATABASE
+        try {
+          await axios.post("http://localhost:5001/api/designs", {
+            name: `${style} ${room}`,
+            design_data: {
+              room,
+              style,
+              color,
+              prompt: promptText
+            },
+            thumbnail_url: imageUrl
+          }, {
+            headers: { "x-auth-token": token }
+          });
+          console.log("Design saved to database successfully");
+        } catch (saveError) {
+          console.error("Failed to save design to database:", saveError);
+          // Don't alert here to not interrupt user flow, but log it
+        }
       } else {
         alert(`Generation failed: ${res.data.message}\nDetail: ${res.data.detail || 'No detail available'}`);
       }

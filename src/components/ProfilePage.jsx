@@ -292,17 +292,27 @@ export default function ProfilePage() {
             <div className="value">{user.plan || (user.role === 'admin' ? 'ADMIN' : 'FREE')}</div>
           </div>
         </div>
-        <div className="stat-card">
-          <div className="stat-icon" style={{ background: '#fdf2f8', color: '#ec4899' }}>📅</div>
-          <div className="stat-info">
-            <h3>Member Since</h3>
-            <div className="value">
-              {user.created_at 
-                ? new Date(user.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) 
-                : 'Loading...'}
+        {user.plan === 'FREE' ? (
+          <div className="stat-card">
+            <div className="stat-icon" style={{ background: '#fff7ed', color: '#f97316' }}>💳</div>
+            <div className="stat-info">
+              <h3>Credits (AI / Manual)</h3>
+              <div className="value">{user.ai_credits} / {user.manual_credits}</div>
             </div>
           </div>
-        </div>
+        ) : (
+          <div className="stat-card">
+            <div className="stat-icon" style={{ background: '#fdf2f8', color: '#ec4899' }}>📅</div>
+            <div className="stat-info">
+              <h3>Member Since</h3>
+              <div className="value">
+                {user.created_at 
+                  ? new Date(user.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) 
+                  : 'Loading...'}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="main-grid">

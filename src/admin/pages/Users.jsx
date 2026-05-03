@@ -116,6 +116,40 @@ export default function Users() {
     }
   }
 
+  const exportToCSV = () => {
+    if (users.length === 0) return;
+    
+    // Define headers
+    const headers = ['ID', 'Name', 'Email', 'Plan', 'Status', 'Joined Date'];
+    
+    // Format data rows
+    const rows = users.map(u => [
+      u.id,
+      `"${u.name}"`, // Quote names to handle commas
+      u.email,
+      u.plan || 'FREE',
+      u.status || 'Active',
+      new Date(u.created_at).toLocaleDateString()
+    ]);
+    
+    // Combine into CSV string
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(r => r.join(','))
+    ].join('\n');
+    
+    // Create download link
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `users_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   if (viewingUser) {
     return (
       <div className="user-details-view">
@@ -231,7 +265,17 @@ export default function Users() {
         .btn-confirm { padding: 10px 24px; border-radius: 12px; font-weight: 600; cursor: pointer; background: #0b2a4a; color: white; border: none; }
       `}</style>
 
-      <h2 style={{ margin: '0 0 20px', fontSize: 22, fontWeight: 800 }}>Users</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h2 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>Users</h2>
+        <button 
+          onClick={exportToCSV}
+          className="btn-act view"
+          style={{ padding: '10px 20px', borderRadius: '12px' }}
+          disabled={users.length === 0}
+        >
+          📥 Export to Excel (CSV)
+        </button>
+      </div>
       
       {error && (
         <div style={{ background: '#fef2f2', color: '#dc2626', padding: '12px 20px', borderRadius: '12px', marginBottom: '20px', border: '1px solid #fee2e2', fontSize: '14px', fontWeight: 500 }}>
